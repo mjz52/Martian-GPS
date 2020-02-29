@@ -32,6 +32,10 @@ t_orbit_M = t_orbit_E;
 % dlmwrite('posM.txt',posM); dlmwrite('velM.txt', velM);
 posM = importdata('posM.txt'); velM = importdata('velM.txt');
 
+% [timeP, posP, velP] = auto_horizons('Phobos', 'BARYCENTER', t_orbit_E(1), t_orbit_E(2));
+% dlmwrite('posP.txt',posP); dlmwrite('velP.txt', velP);
+posP = importdata('posP.txt'); velP = importdata('velP.txt');
+
 % IDENTIFY MINIMUM ENERGY TRANSFER
 % t0_earliest = juliandate(t_orbit_E(1));
 % t0_latest = juliandate(t_orbit_E(2));
@@ -56,35 +60,43 @@ fig = figure(1); shg;
 x_sun = x_sun*R_S; y_sun = y_sun*R_S; z_sun = z_sun*R_S;
 times = linspace(t_orbit_E(1),t_orbit_E(2),length(posE));
 % Animate motion of Earth and Mars
-% for i = 1:length(posE)
-%     % The whole path length of the orbits
-%     plot3(posE(1:365,1),posE(1:365,2),posE(1:365,3), 'LineWidth', 1, 'color', getColor('LightBlue'));
-%     hold on;
-%     plot3(posM(1:687,1),posM(1:687,2),posM(1:687,3), 'LineWidth', 1, 'color', getColor('Crimson'));
-% 
-%     % The current position of the planets
-%     plot3(posE(i,1),posE(i,2),posE(i,3), '.', 'MarkerSize',20, 'color', getColor('Blue'));
-%     plot3(posM(i,1),posM(i,2),posM(i,3), '.', 'MarkerSize',20, 'color', getColor('Red'));
-%     
-%     % The sun
-%     surf(x_sun, y_sun, z_sun);
-%     
-%     text(0,0,datestr(times(i)));
-%     
-%     hold off
-%     axis equal;
-% %     ylabel('$y$','interpreter','latex');
-% %     xlabel('$x$','Interpreter','latex'); 
-% %     title('Orbit of Two Particles in Space');
-%     %legend({'Mass 1', 'Mass 2'}, 'Location', 'east');
-%     perframe = 5/length(posE); %Seconds per frame to get a 10 second animation
-%     pause(perframe); 
-%     
-%     %Ends loop if figure is closed
-%     if ~ishghandle(fig)
-%         break
-%     end
-% end
+for i = 1:length(posE)
+    % The whole path length of the orbits
+    plot3(posE(1:365,1),posE(1:365,2),posE(1:365,3), 'LineWidth', 1, 'color', getColor('LightBlue'));
+    hold on;
+    plot3(posM(1:687,1),posM(1:687,2),posM(1:687,3), 'LineWidth', 1, 'color', getColor('Crimson'));
+    plot3(posP(1:687,1),posP(1:687,2),posP(1:687,3), 'LineWidth', 1, 'color', getColor('Grey'));
+
+    % The current position of the planets
+    plot3(posE(i,1),posE(i,2),posE(i,3), '.', 'MarkerSize',20, 'color', getColor('Blue'));
+    plot3(posM(i,1),posM(i,2),posM(i,3), '.', 'MarkerSize',20, 'color', getColor('Red'));
+    plot3(posP(i,1),posP(i,2),posP(i,3), '.', 'MarkerSize',10, 'color', getColor('Grey'));
+    
+    % The sun
+    surf(x_sun, y_sun, z_sun);
+    
+    text(0,0,datestr(times(i)));
+    
+    hold off
+    axis equal;
+    % USE THIS TO ZOOM IN ON PLANETS
+%     axis([getBounds([posE(i,1),posM(i,1),posP(i,1)]) ...
+%             getBounds([posE(i,2),posM(i,2),posP(i,2)]) ...
+%             getBounds([posE(i,3),posM(i,3),posP(i,3)])]);
+
+%     ylabel('$y$','interpreter','latex');
+%     xlabel('$x$','Interpreter','latex');
+%     title('Orbit of Two Particles in Space');
+    %legend({'Mass 1', 'Mass 2'}, 'Location', 'east');
+    perframe = 5/length(posE); %Seconds per frame to get a 10 second animation
+    pause(perframe); 
+    
+    %Ends loop if figure is closed
+    disp(~ishghandle(fig));
+    if ~ishghandle(fig)
+        break
+    end
+end
 
 % GET ORBITAL POSITIONS
 t1 = datetime(2026,11,08,0,0,0); %y,m,d,h,mi,s
@@ -146,6 +158,7 @@ fprintf('Delta v arrival is %.2f km/s\n',delv2);
         dur = fzero(minTime, 0); %Search around 
     end
 
+
     function tm = getOrbit(st, dur, mu)
         %Output the minimum transfer time given conditions
         [r1_, r2_] = EarthMarsPositions(st, dur); %Get r1 and r2
@@ -157,17 +170,33 @@ fprintf('Delta v arrival is %.2f km/s\n',delv2);
         tm = taum/(2*pi)*(pi - (betam - sin(betam)));
     end
 
+
     function [r1_, r2_] = EarthMarsPositions(st, dur)
         ind = find(timeE == st);
 
         r1_ = posE(ind,:); r2_ = posM(ind+max(0,round(dur)),:);
     end
 
+
     function v = get_vel_circ(r,mu)
        v = sqrt(mu*2/r); 
     end
 
 
+    function minmax = getBounds(vals)
+        max = vals(1); min = vals(1); 
+        for k = 1:length(vals)
+            if (vals(k)<min)
+               min = vals(k); 
+            end
+            if (vals(k)>max)
+               max = vals(k); 
+            end
+        end
+        diff = abs(min - max);
+        minmax = [min-0.2*diff max+0.2*diff];
+%         minmax = [sign(min)*0.8*abs(min), sign(max)*1.2*abs(max)];
+    end
 
 end
 
