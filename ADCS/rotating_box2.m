@@ -14,7 +14,7 @@ Ixx = 1/12*m*(y^2+z^2); Iyy = 1/12*m*(x^2+z^2); Izz = 1/12*m*(x^2+y^2);
 p.I_B = diag([Ixx,Iyy,Izz]); % MOI matrix in B frame
 p.m = m; % kg
 
-w0= [0;1;2*pi];     % Initial angular velocity
+w0= [0;0;2*pi];     % Initial angular velocity
 
 z0 = [w0]; % state vector
 
