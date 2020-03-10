@@ -1,5 +1,5 @@
-function statedot = state_dot(t,z,p)
-q = z(1:4); w = z(5:7);  %wd = z(4:6); 
+function statedot = state_dot(t,state,p)
+q = state(1:4); w = state(5:7);  %wd = z(4:6); 
 I_B_inv = inv(p.I_B);
 M = 0; % moment on spacecraft
 
