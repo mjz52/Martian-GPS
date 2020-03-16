@@ -14,6 +14,10 @@ Ixx = 1/12*m*(y^2+z^2); Iyy = 1/12*m*(x^2+z^2); Izz = 1/12*m*(x^2+y^2);
 p.I_B = diag([Ixx,Iyy,Izz]); % MOI matrix in B frame
 p.m = m; % kg
 
+p.I_G = diag([.01,.01,.01]); % MOI matrix for RWA
+p.w_G = [0;0;0]; % RWA angular velocity
+p.wd_G = [0;0;0]; % RWA angular acceleration
+
 q0 = [0;0;0;1]; % Initial quaternion
 w0= [0;1;2*pi]; % Initial angular velocity
 
