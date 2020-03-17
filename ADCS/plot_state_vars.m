@@ -4,11 +4,11 @@ q1 = zarray(:,1); q2 = zarray(:,2); q3 = zarray(:,3); q4 = zarray(:,4);
 w1 = zarray(:,5); w2 = zarray(:,6); w3 = zarray(:,7);
 
 qarray = [q1';q2';q3';q4'];
-b3array=zeros(3,1,length(qarray));
+b3array_to_inertial=zeros(3,1,length(qarray));
 for i=1:length(qarray)
-b3array(:,:,i) = rotateframe(qarray(:,i),[0;0;1]);
+b3array_to_inertial(:,:,i) = rotateframe(quat_conj(qarray(:,i)),[0;0;1]);
 end
-b3array
+b3array_to_inertial
 
 % Graph 1: Angular Velocities
 figure(1)
@@ -36,5 +36,5 @@ legend('q1','q2','q3','q4')
 subplot(2,1,2)
 quiver3(zeros(1,1,length(qarray)),zeros(1,1,length(qarray)),...
     zeros(1,1,length(qarray)),...
-    b3array(1,:,:),b3array(2,:,:),b3array(3,:,:))
+    b3array_to_inertial(1,:,:),b3array_to_inertial(2,:,:),b3array_to_inertial(3,:,:))
 end
