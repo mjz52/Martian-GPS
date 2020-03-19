@@ -51,7 +51,7 @@ if p
 end
 
 
-dz = [v(1); v(2); v(3); ax; ay; az];
+dz = [v(1); v(2); v(3); ax*(24*3600)^2; ay*(24*3600)^2; az*(24*3600)^2];
 
     function [r,theta,phi] = cartToSph(x,y,z)
         r = sqrt(x.^2 + y.^2 + z.^2);
