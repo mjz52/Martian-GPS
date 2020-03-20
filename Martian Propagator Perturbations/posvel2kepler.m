@@ -29,7 +29,7 @@ ep = sqrt(sum(v.^2,2)).^2/2 - mu./sqrt(sum(r.^2,2)); %Specific energy
 
 a = -mu./(2*ep); %semi-major axis
 
-e =  sqrt(1 - h.^2./(mu*a)); %eccentricity
+e =  sqrt(abs(1 - h.^2./(mu*a))); %eccentricity
 
 %Define vectors:
 % e1_ = [1;0;0]; e2_ = [0;1;0]; e3_ = [0;0;1]; %Units

@@ -1,4 +1,4 @@
-function [r,v] = kepler2posvel(a,e,Omega,I,omega,nu,mu) 
+function [r,v] = kepler2posvel(a,e,Omega,I,omega,nu,mu)
 %Inputs
 % Note: inputs can be row vectors
 %   a - scalar: semi-major axis
