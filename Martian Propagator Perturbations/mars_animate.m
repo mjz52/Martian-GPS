@@ -8,7 +8,7 @@ w_m = 0.0000708822; %rad/s
 
 mars = imread('8k_mars.jpg');
 fig = figure(1);
-[x_m,y_m,z_m] = sphere(100);
+[x_m,y_m,z_m] = sphere(10);
 x_m = R_m*x_m; y_m = R_m*y_m; z_m = R_m*z_m;
 props.FaceColor= 'texture';
 props.Cdata = mars;
@@ -42,7 +42,8 @@ R_ref = 3396; %reference radius used by gravitational model
 %         R(j,i) = mars_perturb(alt, theta(i), phi(j));
 %     end
 % end
-[R,xR,yR,zR] = mars_perturb(alt,theta,phi,2);
+q.mu = 42828.375214
+[R,xR,yR,zR] = mars_perturb(alt,theta,phi,2,q);
 [Theta,Phi] = meshgrid(theta,phi);
 % [X,Y,Z]=sph2cart(theta_,phi_,R_ref+alt);
 surface(xR,yR,zR); axis equal; colorbar;

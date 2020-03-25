@@ -12,7 +12,7 @@
 % want potential
 % N_max - maximum order of perturbing potential
 
-function [R, xR,yR,zR] = mars_perturb(alt, theta, phi, N_max)
+function [R, xR,yR,zR] = mars_perturb(alt, theta, phi, N_max, q)
 
 % UNCOMMENT TO IMPORT ALL SPHERICAL HARMONICS, FIND WAY TO DO THIS
 % EFFICIENTLY
@@ -20,19 +20,19 @@ function [R, xR,yR,zR] = mars_perturb(alt, theta, phi, N_max)
 % data_e = importdata('EGM2008_to10_TideFree');
 % header = data_m(1,:); data = data_m(2:end,1:6);
 
-header = [0.3396000000000000E+04, 0.4282837581575610E+05, 0.1816746000000000E-03,  120,  120,    1, 0.0000000000000000E+00, 0.0000000000000000E+00];
+% header = [0.3396000000000000E+04, 0.4282837581575610E+05, 0.1816746000000000E-03,  120,  120,    1, 0.0000000000000000E+00, 0.0000000000000000E+00];
 data =  [1,    0, 0.0000000000000000E+00, 0.0000000000000000E+00, 0.0000000000000000E+00, 0.0000000000000000E+00 ;            
     1,    1, 0.0000000000000000E+00, 0.0000000000000000E+00, 0.0000000000000000E+00, 0.0000000000000000E+00 ;            
     2,    0,-0.8750220924537000E-03, 0.0000000000000000E+00, 0.1260320626072000E-09, 0.0000000000000000E+00 ;            
     2,    1, 0.4022333306382000E-09, 0.2303183853552000E-10, 0.5456693544801000E-10, 0.5496542735417000E-10 ;            
     2,    2,-0.8463302655983001E-04, 0.4893941832167000E-04, 0.5053988823546000E-10, 0.7815263382273999E-10 ];
-R_m = header(1); %reference radius, km
-mu_m = header(2); %gravitational parameter, km^3/s^2
-max_deg = header(4); max_ord = header(5); norm = header(6);
-ref_long = header(7); ref_lat = header(8);
+R_m = 0.3396000000000000E+04; %reference radius, km
+% mu_m = header(2); %gravitational parameter, km^3/s^2
+mu_m = q.mu;
+% max_deg = header(4); max_ord = header(5); norm = header(6);
+% ref_long = header(7); ref_lat = header(8);
 
 [Theta,Phi] = meshgrid(theta,phi);
-N = 2:100;
 % theta = 0; phi = 45*pi/180; %azumith, zenith (angle from zenith), IN RADIANS
 % theta = theta*pi/180; phi = phi*pi/180;
 r = alt+R_m; %altitude

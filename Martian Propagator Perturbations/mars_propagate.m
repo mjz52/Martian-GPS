@@ -13,10 +13,12 @@
 
 % INPUT: z - [6x1] state vector containing position and velocity vectors
 %        t - [1x1] current time
-function dz = mars_propagate(~,z,p)
+function dz = mars_propagate(~,z,q)
 % Mars properties
-mu = 42828.375214; %km^3/s^2
-R_m = 3389.92; %km
+mu = q.mu; R_m = q.R_m; p = q.pert;
+% p = q.pert;
+% mu = 42828.375214; %km^3/s^2
+% R_m = 3389.92; %km
 
 r = z(1:3); v = z(4:6);
 
@@ -51,7 +53,7 @@ if p
 end
 
 
-dz = [v(1); v(2); v(3); ax*(24*3600)^2; ay*(24*3600)^2; az*(24*3600)^2];
+dz = [v(1); v(2); v(3); ax; ay; az];
 
     function [r,theta,phi] = cartToSph(x,y,z)
         r = sqrt(x.^2 + y.^2 + z.^2);
@@ -69,7 +71,7 @@ dz = [v(1); v(2); v(3); ax*(24*3600)^2; ay*(24*3600)^2; az*(24*3600)^2];
         r_ = r + dr;
         [d_,th,ph] = cartToSph(r_(1),r_(2),r_(3));
         alt = d_ - R_m;
-        [R,xR,yR,zR] = mars_perturb(alt, th, ph, 2);
+        [R,xR,yR,zR] = mars_perturb(alt, th, ph, 2, q);
         U = R; %Return the gravitational pertubing potential
     end
 
