@@ -44,12 +44,21 @@ az = -mu/d^3 * r(3);
 % ax = ax+a_drag(1); ay = ay+a_drag(2); az = az+a_drag(3);
 
 %Gravitational potential
+% ORIGINAL TECHNIQUE OF MANUALLY COMPUTING GRADIENT
+% if p
+%     dx = 0.000005; dy = 0.000005; dz = 0.000005;
+%     gradUx = (getGrav(r,[dx,0,0])-getGrav(r,[-dx,0,0]))/(2*dx);
+%     gradUy = (getGrav(r,[0,dy,0])-getGrav(r,[0,-dy,0]))/(2*dy);
+%     gradUz = (getGrav(r,[0,0,dz])-getGrav(r,[0,0,-dz]))/(2*dz);
+%     ax = ax+gradUx; ay = ay+gradUy; az = az+gradUz;
+% end
+% NEW METHOD OF USING ANALYTICAL EXPERSSION FOR J2 PERTURBING FORCE
 if p
-    dx = 0.000005; dy = 0.000005; dz = 0.000005;
-    gradUx = (getGrav(r,[dx,0,0])-getGrav(r,[-dx,0,0]))/(2*dx);
-    gradUy = (getGrav(r,[0,dy,0])-getGrav(r,[0,-dy,0]))/(2*dy);
-    gradUz = (getGrav(r,[0,0,dz])-getGrav(r,[0,0,-dz]))/(2*dz);
-    ax = ax+gradUx; ay = ay+gradUy; az = az+gradUz;
+    C20 = -0.8750220924537000E-03; l = 2; m = 0;
+    J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20;
+    ax = ax + -3/2*mu*J2*R_m^2/d^5*r(1)*(1-5*r(3)^2/d^2);
+    ay = ay + -3/2*mu*J2*R_m^2/d^5*r(2)*(1-5*r(3)^2/d^2);
+    az = az + -3/2*mu*J2*R_m^2/d^5*r(3)*(3-5*r(3)^2/d^2);
 end
 
 

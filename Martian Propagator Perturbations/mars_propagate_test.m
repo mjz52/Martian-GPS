@@ -36,7 +36,7 @@ axis equal;
 view(50,10); %View plot from angle specified by AZ, EL
 
 % Plot unperturbed orbit
-t_ = [0,100];%3600*24*100]; %100 days
+t_ = [0,1];%3600*24*100]; %100 days
 % z0 = [500;000;5000;0;3.5*secPerDay;0]; % <- GOOD EXAMPLE OF HOW INCLINATION VARIES OVER TIME
 [r,v] = kepler2posvel(1.5*R_m,0,pi/6,pi/6,0,0,mu); %a,e,Omega,I,omega,nu,mu
 z0 = [r', v'];
@@ -61,7 +61,7 @@ plot(t_array,Omega,'color','red');
 plot(t_array,I,'color','blue');
 plot(t_array,omega,'color','green');
 legend({"$\Omega$","$I$","$\omega$"},'interpreter','latex');
-xlabel('t (days)','interpreter','latex'); ylabel('$Orbital element (rad)$','interpreter','latex')
+xlabel('t (days)','interpreter','latex'); ylabel('Orbital element (rad)','interpreter','latex')
 subplot(3,1,2);
 plot(t_array,a);
 legend({"a, semi-major axis"})
@@ -71,7 +71,7 @@ legend({"e, eccentricity"})
 
 % Get ground track
 ax = [[-size(mars,2)/2, size(mars,2)/2]; [-size(mars,1)/2, size(mars,1)/2]];
-r = [x y z];
+r = [x_pot y_pot z_pot];
 lon = zeros(length(x_pot),1);
 lat = zeros(length(x_pot),1);
 h = zeros(length(x_pot),1);
@@ -85,4 +85,8 @@ figure(3); hold on; axis equal;
 image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, mars);
 set(gca,'YDir','normal');
 scatter(ground_track(:,1),ground_track(:,2));
+
+% Model Coverage
+alpha = 20*pi/180
+% model_coverage(r, [lon,lat,h], alpha);
 
