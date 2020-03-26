@@ -1,13 +1,13 @@
 function [r,v] = kepler2posvel(a,e,Omega,I,omega,nu,mu)
 %Inputs
 % Note: inputs can be row vectors
-%   a - scalar: semi-major axis
-%   e - scalar: eccentricity
-%   Omega - scalar: longitude of the ascending node (in radians)
-%   I - scalar: inclination (in radians)
-%   omega - scalar: argument of periapsis (in radians)
-%   nu - scalar: true anomaly
-%   mu - scalar: gravitational parameter
+%   a - scalar: semi-major axis, a > 0
+%   e - scalar: eccentricity, 0 < e < 1
+%   Omega - scalar: LAN (in radians), 0 < Omega < 2*pi
+%   I - scalar: inclination (in radians), 0 < I < pi
+%   omega - scalar: argument of periapsis (in radians), 0 < omega < 2*pi
+%   nu - scalar: true anomaly, 0 < nu < 2*pi
+%   mu - scalar: gravitational parameter, mu > 0
 
 %Outputs
 %   r - 3x1 array: orbital position vector

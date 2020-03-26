@@ -54,8 +54,7 @@ az = -mu/d^3 * r(3);
 % end
 % NEW METHOD OF USING ANALYTICAL EXPERSSION FOR J2 PERTURBING FORCE
 if p
-    C20 = -0.8750220924537000E-03; l = 2; m = 0;
-    J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20;
+    J2 = q.J2;
     ax = ax + -3/2*mu*J2*R_m^2/d^5*r(1)*(1-5*r(3)^2/d^2);
     ay = ay + -3/2*mu*J2*R_m^2/d^5*r(2)*(1-5*r(3)^2/d^2);
     az = az + -3/2*mu*J2*R_m^2/d^5*r(3)*(3-5*r(3)^2/d^2);

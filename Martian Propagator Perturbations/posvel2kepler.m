@@ -1,4 +1,4 @@
-function [a,e,E,I,omega,Omega,T,tp] = posvel2kepler(r,v,mu) 
+function [a,e,Omega,I,omega,E,T,tp] = posvel2kepler(r,v,mu) 
 
 %Convert orbital position and velocity to orbital elements
 %Inputs:
@@ -21,6 +21,11 @@ function [a,e,E,I,omega,Omega,T,tp] = posvel2kepler(r,v,mu)
 % v = v(:);
 
 % NOTE: To take the norm of each row of a matrix, use: sqrt(sum(r.^2,2))
+
+% Transpose if each r and v is column
+if(max(size(r))==3 && size(r,1)>size(r,2) || max(size(r))>3 && size(r,2)>size(r,1))
+   r = r'; v = v';
+end
 
 h_ = cross(r, v); %Specific angular momentum vector
 h = sqrt(sum(h_.^2,2)); %Specific angular momentum
@@ -52,14 +57,21 @@ E = mod(atan2(sinE,cosE),2*pi); %ecentric anomaly
 % nu = 2*atan(sqrt((1+e)/(1-e))*tan(E/2))
 
 
-I = atan2(sqrt(sum(cross(h_,e3_).^2,2)),dot(h_',e3_')'); %inclination
-I = mod(I,2*pi); %inclination must be in proper range
+% I = atan2(sqrt(sum(cross(h_,e3_).^2,2)),dot(h_',e3_')'); %inclination
+% I = mod(I,2*pi); %inclination must be in proper range
+I = acos(h_(:,3));
 
-omega = atan2(sqrt(sum(cross(e_,n_).^2,2)),dot(e_',n_')'); %argument of periapsis
-omega = 2*pi - mod(omega,2*pi);
+% omega = atan2(sqrt(sum(cross(e_,n_).^2,2)),dot(e_',n_')'); %argument of periapsis
+% omega = mod(omega,2*pi);
+cosw = dot(e_', n_')';
+sinw = dot(cross(n_',e_'),h_')';
+omega = atan2(sinw, cosw);
+omega(find(omega<0)) = 2*pi + omega(find(omega<0));
 
-Omega = atan2(sqrt(sum(cross(n_,e1_).^2,2)),dot(n_',e1_')'); %longitude of ascending node
-Omega = 2*pi - mod(Omega,2*pi);
+% Omega = atan2(sqrt(sum(cross(n_,e1_).^2,2)),dot(n_',e1_')'); %longitude of ascending node
+% Omega = mod(Omega,2*pi);
+Omega = atan2(n_(:,2),n_(:,1)); %since vector n_ is defined in the plane of interest
+Omega(find(Omega<0)) = 2*pi + Omega(find(Omega<0));
 
 T =  2*pi/sqrt(mu)*a.^(3/2); %orbital period
 
