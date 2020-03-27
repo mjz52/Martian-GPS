@@ -14,6 +14,17 @@ bm = am*sqrt(1-em2); %Polar radius (km)
 C20 = -0.8750220924537000E-03; l = 2; m = 0;
 J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20; p.J2 = J2;
 
+% Earth Testing - COMMENT OUT WHEN DONE
+% mu = 398600.435436*secPerDay^2; p.mu = mu;
+% J2 = 1082.645e-6; p.J2 = J2;
+% R_m = 6371.01; p.R_m = R_m;
+% am = 6378.137;          %km Earth geoid sma
+% fm = 1.0/298.257223563; %Earth geoid flattening
+% em2 = 2*fm - fm^2;      % Earth geoid eccentricity squared
+% wm = 7.292115e-5;       %rad/s rotation rate of the Earth
+% bm = am*sqrt(1-em2);
+
+
 lat = linspace(-pi/2,pi/2,100);
 theta = linspace(0,2*pi,100);
 [Theta, Lat] = meshgrid(theta, lat);
@@ -25,7 +36,7 @@ x_m = x.*cos(Theta);
 y_m = x.*sin(Theta);
 z_m = z;
 % Plot Mars
-mars = imread('8k_mars.jpg');
+mars = imread('8k_mars.jpg'); %'8k_earth_daymap.jpg' for earth
 fig = figure(1);
 props.FaceColor= 'texture';
 props.EdgeColor = 'none';
@@ -37,9 +48,13 @@ axis equal;
 view(50,10); %View plot from angle specified by AZ, EL
 
 % Plot unperturbed orbit
-t_ = [0,100];%3600*24*100]; %100 days
+t_ = [0,2];%3600*24*100]; %100 days
 % z0 = [500;000;5000;0;3.5*secPerDay;0]; % <- GOOD EXAMPLE OF HOW INCLINATION VARIES OVER TIME
-[r0,v0] = kepler2posvel(4*R_m,0.75,4*pi/3,asin(2/sqrt(5)),5*pi/3,0,mu); %a,e,Omega,I,omega,nu,mu
+% k0 = [4*R_m,0.75,4*pi/3,asin(2/sqrt(5)),5*pi/3,0]; %a,e,Omega,I,omega,nu
+k0 = [26554, 0.72, 0, 63.4*pi/180, -90*pi/180, 0]; % MOLNIYA ORBIT FOR EARTH
+[r0,v0] = kepler2posvel(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6),mu);
+% I = asin(2/sqrt(5)) to minimize apsidal rotation, I = pi/2 to minimize
+% RAAN drift
 % [r0,v0] = kepler2posvel(2*R_m,0.1,-0.5,0.75,0.1,0,mu);
 z0 = [r0', v0'];
 p.pert = 0;
@@ -59,20 +74,23 @@ drawAxes();
 
 % Plot Orbital Elements over time
 [a,e,Omega,I,omega,E,T,tp] = posvel2kepler(z_array(:,1:3),z_array(:,4:6),mu);
+[Omega_theor, omega_theor] = theor_orbit(k0, p, t_array);
 figure(2);
 subplot(3,1,1); hold on;
 plot(t_array,Omega,'color','red');
 plot(t_array,I,'color','blue');
 plot(t_array,omega,'color','green');
-legend({"$\Omega$","$I$","$\omega$"},'interpreter','latex');
+plot(t_array,Omega_theor,'color',getColor('DarkRed'));
+plot(t_array,omega_theor,'color',getColor('DarkGreen'));
+legend("$\Omega$","$I$","$\omega$","$\Omega_{theor}$","$\omega_{theor}$",'interpreter','latex','location','eastoutside');
 xlabel('t (days)','interpreter','latex'); ylabel('Orbital element (rad)','interpreter','latex');
 ylim([0 2*pi]);
 subplot(3,1,2);
 plot(t_array,a);
-legend({"a, semi-major axis"});
+legend("a, semi-major axis",'location','eastoutside');
 subplot(3,1,3); 
 plot(t_array,e);
-legend({"e, eccentricity"});
+legend("e, eccentricity",'location','eastoutside');
 ylim([0 1])
 
 % Get ground track

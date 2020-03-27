@@ -9,10 +9,10 @@ function [a,e,Omega,I,omega,E,T,tp] = posvel2kepler(r,v,mu)
 %Outputs:
 %   a - scalar: semi-major axis
 %   e - scalar: eccentricity
-%   E - scalar: eccentric anomaly (in radians)
+%   Omega - scalar: longitude of the ascending node (in radians)
 %   I - scalar: inclination (in radians)
 %   omega - scalar: argument of periapsis (in radians)
-%   Omega - scalar: longitude of the ascending node (in radians)
+%   E - scalar: eccentric anomaly (in radians)
 %   T - scalar: orbital period
 %   tp - scalar: time of periapse passage
 

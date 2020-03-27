@@ -3,7 +3,7 @@ function [r,v] = kepler2posvel(a,e,Omega,I,omega,nu,mu)
 % Note: inputs can be row vectors
 %   a - scalar: semi-major axis, a > 0
 %   e - scalar: eccentricity, 0 < e < 1
-%   Omega - scalar: LAN (in radians), 0 < Omega < 2*pi
+%   Omega - scalar: RAAN (in radians), 0 < Omega < 2*pi
 %   I - scalar: inclination (in radians), 0 < I < pi
 %   omega - scalar: argument of periapsis (in radians), 0 < omega < 2*pi
 %   nu - scalar: true anomaly, 0 < nu < 2*pi
