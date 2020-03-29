@@ -22,3 +22,6 @@ for i = 2:length(t)
     Om(i) = Om(i-1) + Om_dot*(t(i)-t(i-1));
     om(i) = om(i-1) + om_dot*(t(i)-t(i-1));
 end
+% Correct negative values
+Om(find(Om<0)) = 2*pi + Om(find(Om<0));
+om(find(om<0)) = 2*pi + om(find(om<0));

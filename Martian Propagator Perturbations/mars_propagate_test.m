@@ -25,8 +25,8 @@ J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20; p.J2 = J2;
 % bm = am*sqrt(1-em2);
 
 
-lat = linspace(-pi/2,pi/2,100);
-theta = linspace(0,2*pi,100);
+lat = linspace(pi/2,-pi/2,100);
+theta = linspace(-pi,pi,100);
 [Theta, Lat] = meshgrid(theta, lat);
 
 % Surface coordinates of Mars
@@ -36,7 +36,7 @@ x_m = x.*cos(Theta);
 y_m = x.*sin(Theta);
 z_m = z;
 % Plot Mars
-mars = imread('8k_mars.jpg'); %'8k_earth_daymap.jpg' for earth
+mars = imread('8k_earth_daymap.jpg'); %'8k_earth_daymap.jpg' for earth, '8k_mars.jpg' for mars
 fig = figure(1);
 props.FaceColor= 'texture';
 props.EdgeColor = 'none';
@@ -48,14 +48,13 @@ axis equal;
 view(50,10); %View plot from angle specified by AZ, EL
 
 % Plot unperturbed orbit
-t_ = [0,2];%3600*24*100]; %100 days
+t_ = [0,1];%3600*24*100]; %100 days
 % z0 = [500;000;5000;0;3.5*secPerDay;0]; % <- GOOD EXAMPLE OF HOW INCLINATION VARIES OVER TIME
-% k0 = [4*R_m,0.75,4*pi/3,asin(2/sqrt(5)),5*pi/3,0]; %a,e,Omega,I,omega,nu
-k0 = [26554, 0.72, 0, 63.4*pi/180, -90*pi/180, 0]; % MOLNIYA ORBIT FOR EARTH
+k0 = [2*R_m,0.1,37.5*pi/180,90*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
+% k0 = [26554, 0.72, 0, 63.4*pi/180, -90*pi/180, 0]; % MOLNIYA ORBIT FOR EARTH
 [r0,v0] = kepler2posvel(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6),mu);
 % I = asin(2/sqrt(5)) to minimize apsidal rotation, I = pi/2 to minimize
 % RAAN drift
-% [r0,v0] = kepler2posvel(2*R_m,0.1,-0.5,0.75,0.1,0,mu);
 z0 = [r0', v0'];
 p.pert = 0;
 [t_array, z_array] = ode45(@mars_propagate,t_,z0',odeset('RelTol',1e-6,'AbsTol',1e-6),p);
@@ -95,18 +94,18 @@ ylim([0 1])
 
 % Get ground track
 ax = [[-size(mars,2)/2, size(mars,2)/2]; [-size(mars,1)/2, size(mars,1)/2]];
-r = [x_pot y_pot z_pot];
+r = [x y z]; % GROUND TRACK POINTS
 lon = zeros(length(x_pot),1);
 lat = zeros(length(x_pot),1);
 h = zeros(length(x_pot),1);
 ground_track = zeros(length(x_pot),2);
-for i = 1:length(x_pot)
+for i = 1:length(x)
     [lon(i), lat(i), h(i)] = Geodetic(r(i,:));
     z = (am*(1-em2)./sqrt(1 - em2*sin(lat(i))^2) + 0) .* sin(lat(i));
     ground_track(i,:) = [lon(i)/pi*ax(1,2), z/bm*ax(2,2)];
 end
 figure(3); hold on; axis equal;
-image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, mars);
+image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, flipud(mars));
 set(gca,'YDir','normal');
 scatter(ground_track(:,1),ground_track(:,2));
 
