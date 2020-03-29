@@ -1,7 +1,10 @@
 function plot_state_vars(tarray,zarray)
 t= tarray;
-q1 = zarray(:,1); q2 = zarray(:,2); q3 = zarray(:,3); q4 = zarray(:,4);
-w1 = zarray(:,5); w2 = zarray(:,6); w3 = zarray(:,7);
+x = zarray(:,1); y = zarray(:,2); z = zarray(:,3);
+vx = zarray(:,4); vy = zarray(:,5); vz = zarray(:,6);
+q1 = zarray(:,7); q2 = zarray(:,8); q3 = zarray(:,9); q4 = zarray(:,10);
+w1 = zarray(:,11); w2 = zarray(:,12); w3 = zarray(:,13);
+wG1 = zarray(:,14); wG2 = zarray(:,15); wG3 = zarray(:,16);
 
 qarray = [q1';q2';q3';q4'];
 b3array_to_inertial=zeros(3,1,length(qarray));
