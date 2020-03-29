@@ -47,8 +47,10 @@ n_ = cross(e3_, h_); %n_ = n_/norm(n_);% Line of ascending nodes
 er_ = r./sqrt(sum(r.^2,2));
 
 
-nu = acos(1./e.*(a.*(1-e.^2)./sqrt(sum(r.^2,2)) - 1));
-nu1 = acos(dot(e_', er_')');
+% nu = acos(1./e.*(a.*(1-e.^2)./sqrt(sum(r.^2,2)) - 1));
+nu1 = real(acos(dot(e_', er_')'));
+neg_nu = find(dot(v', er_')'<0);
+nu1(neg_nu) = 2*pi - nu1(neg_nu);
 
 cosE = 1./e.*(1-sqrt(sum(r.^2,2))./a); %cosine of the eccentric anomaly (from radius eq.)
 sinE = sqrt(1-e.^2).*sin(nu1)./(1+e.*cos(nu1)); %sine of eccentric anomaly (from velocity eq.)
@@ -75,8 +77,8 @@ Omega(find(Omega<0)) = 2*pi + Omega(find(Omega<0));
 
 T =  2*pi/sqrt(mu)*a.^(3/2); %orbital period
 
-M = E - e.*sinE; %Mean motion
-n = 2*pi./T;
+M = E - e.*sinE; %Mean anomaly
+n = 2*pi./T; %Mean motion
 tp = -M./n; %time of periapsis passage
 
 %we'd like the time of periapsis passage to strictly positive
