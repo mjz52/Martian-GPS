@@ -13,8 +13,28 @@ b3array_to_inertial(:,:,i) = rotateframe(quat_conj(qarray(:,i)),[0;0;1]);
 end
 b3array_to_inertial
 
-% Graph 1: Angular Velocities
-figure(1)
+% Graph 1: Position
+figure()
+clf
+subplot(3,1,1)
+plot(t,x)
+subplot(3,1,2)
+plot(t,y)
+subplot(3,1,3)
+plot(t,z)
+
+% Graph 2: Velocity
+figure()
+clf
+subplot(3,1,1)
+plot(t,vx)
+subplot(3,1,2)
+plot(t,vy)
+subplot(3,1,3)
+plot(t,vz)
+
+% Graph 3: Angular Velocities
+figure()
 clf
 subplot(2,1,1)
 plot(t,w1,'b--',t,w2,'r--')
@@ -26,11 +46,11 @@ subplot(2,1,2)
 plot(t,w3,'--')
 set(gca,'FontName','Times','FontSize',12)
 ylabel('\omega_3 (rad/s)')
-ylim([w3(1)*0.99,w3(1)*1.01])
+%ylim([w3(1)*0.99,w3(1)*1.01])
 xlabel('Time (s)')
 xlim([0,t(end)])
 
-% Graph 2: Quaternions
+% Graph 4: Quaternions
 figure()
 subplot(2,1,1)
 plot(t,q1,t,q2,t,q3,t,q4)

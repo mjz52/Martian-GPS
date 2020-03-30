@@ -22,15 +22,11 @@ q0 = q0/norm(q0);
 wG0 = [0;0;0]; % RWA initial angular velocity
 z0 = [r0;v0;q0;w0;wG0];
 
-%Consants (SI units)
-p.G = 6.67408*10^-11; % Universal Gravitational Constant
-p.MM = 6.39*10^23; % mass of Mars (kg)
-p.ME = 5.972*10^24; % mass of Earth (kg)
-
 l = 0.1; w = 0.2; h = 0.3; % CubeSat dimensions
 m = 3; % CubeSat mass
 Ixx = 1/12*m*(w^2+h^2); Iyy = 1/12*m*(l^2+h^2); Izz = 1/12*m*(l^2+w^2);
 
+% p is a struct with properties of the spacecraft
 p.I_B = diag([Ixx,Iyy,Izz]); % MOI matrix in B frame
 p.m = m; % kg
 
