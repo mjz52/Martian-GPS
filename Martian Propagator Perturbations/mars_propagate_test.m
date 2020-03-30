@@ -30,13 +30,9 @@ theta = linspace(-pi,pi,100);
 [Theta, Lat] = meshgrid(theta, lat);
 
 % Surface coordinates of Mars
-x = (am./sqrt(1 - em2*sin(Lat).^2) + 0) .* cos(Lat);
-z = (am*(1-em2)./sqrt(1 - em2*sin(Lat).^2) + 0) .* sin(Lat);
-x_m = x.*cos(Theta);
-y_m = x.*sin(Theta);
-z_m = z;
+[x_m,y_m,z_m] = geod2pos(Lat, Theta, 0);
 % Plot Mars
-mars = imread('8k_earth_daymap.jpg'); %'8k_earth_daymap.jpg' for earth, '8k_mars.jpg' for mars
+mars = imread('8k_mars.jpg'); %'8k_earth_daymap.jpg' for earth, '8k_mars.jpg' for mars
 fig = figure(1);
 props.FaceColor= 'texture';
 props.EdgeColor = 'none';
@@ -72,7 +68,7 @@ legend({'Unperturbed','Gravitational perturbation'});
 drawAxes();
 
 % Plot Orbital Elements over time
-[a,e,Omega,I,omega,E,T,tp] = posvel2kepler(z_array(:,1:3),z_array(:,4:6),mu);
+[a,e,Omega,I,omega,nu,M,T,tp] = posvel2kepler(z_array(:,1:3),z_array(:,4:6),mu);
 [Omega_theor, omega_theor] = theor_orbit(k0, p, t_array);
 figure(2);
 subplot(3,1,1); hold on;
@@ -107,7 +103,7 @@ end
 figure(3); hold on; axis equal;
 image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, flipud(mars));
 set(gca,'YDir','normal');
-scatter(ground_track(:,1),ground_track(:,2));
+scatter(ground_track(:,1),ground_track(:,2),'.');
 
 % Model Coverage
 alpha = 20*pi/180;

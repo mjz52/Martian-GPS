@@ -16,7 +16,7 @@ switch icase
         fov_deg = 30; % 
         % this solution only works for NADIR pointing satellite FOV
         % location of center of footprint
-        latitude0_degN = 20;    % [degN] nadir intersection (center of FOV)
+        latitude0_degN = 30;    % [degN] nadir intersection (center of FOV)
         longitude0_degE = -75.2; % [degE] nadir intersection (center of FOV)
 end
 % approximate with spherical earth 

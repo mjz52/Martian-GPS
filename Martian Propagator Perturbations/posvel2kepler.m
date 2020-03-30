@@ -1,4 +1,4 @@
-function [a,e,Omega,I,omega,E,T,tp] = posvel2kepler(r,v,mu) 
+function [a,e,Omega,I,omega,nu,M,T,tp] = posvel2kepler(r,v,mu) 
 
 %Convert orbital position and velocity to orbital elements
 %Inputs:
@@ -12,7 +12,8 @@ function [a,e,Omega,I,omega,E,T,tp] = posvel2kepler(r,v,mu)
 %   Omega - scalar: longitude of the ascending node (in radians)
 %   I - scalar: inclination (in radians)
 %   omega - scalar: argument of periapsis (in radians)
-%   E - scalar: eccentric anomaly (in radians)
+%   nu - scalar: true anomaly
+%   M - scalar: mean anomaly (in radians)
 %   T - scalar: orbital period
 %   tp - scalar: time of periapse passage
 
@@ -48,12 +49,12 @@ er_ = r./sqrt(sum(r.^2,2));
 
 
 % nu = acos(1./e.*(a.*(1-e.^2)./sqrt(sum(r.^2,2)) - 1));
-nu1 = real(acos(dot(e_', er_')'));
+nu = real(acos(dot(e_', er_')'));
 neg_nu = find(dot(v', er_')'<0);
-nu1(neg_nu) = 2*pi - nu1(neg_nu);
+nu(neg_nu) = 2*pi - nu(neg_nu);
 
 cosE = 1./e.*(1-sqrt(sum(r.^2,2))./a); %cosine of the eccentric anomaly (from radius eq.)
-sinE = sqrt(1-e.^2).*sin(nu1)./(1+e.*cos(nu1)); %sine of eccentric anomaly (from velocity eq.)
+sinE = sqrt(1-e.^2).*sin(nu)./(1+e.*cos(nu)); %sine of eccentric anomaly (from velocity eq.)
 E = mod(atan2(sinE,cosE),2*pi); %ecentric anomaly
 
 % nu = 2*atan(sqrt((1+e)/(1-e))*tan(E/2))
