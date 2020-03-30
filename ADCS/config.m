@@ -4,7 +4,7 @@ Script to initialize const global variables.
 %}
 global const
 %% Mars
-const.mu_mars = 4.282837e13;
+const.MU_MARS = 4.282837e13;
 % Mars gravitational const
 
 C20 = -0.8750220924537000E-03; l = 2; m = 0;

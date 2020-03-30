@@ -15,7 +15,7 @@ wG = state(14:16);
 rd = v;
 
 % Calculate vdot
-mu = const.mu_mars; rhat = r/norm(r);
+mu = const.MU_MARS; rhat = r/norm(r);
 vd = -(mu/(norm(r)^2))*rhat; % 2body  acceleration
 vdx = vd(1); vdy = vd(2); vdz = vd(3);
 J2 = const.J2; R_M = const.R_MARS;
@@ -32,7 +32,7 @@ quat_rate = [w;0];
 qd = quat_cross_mult(0.5*quat_rate,q);
 
 % Reaction Wheels
-wGd = wG; % temporary
+wGd = [0;0;0]; % temporary
 
 % Angular Velocity Derivative
 I_B = p.I_B; % MOI spacecraft body frame

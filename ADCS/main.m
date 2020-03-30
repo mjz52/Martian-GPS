@@ -2,8 +2,8 @@ clear; clc;
 config();
 global const
 % Create tarray
-tend = 5400; % Ending time (s)
-npointspers = 100; %  number points per unit time
+tend = 14400; % Ending time (s)
+npointspers = 10; %  number points per unit time
 ntimes = tend * npointspers + 1; %  total number of time points
 tarray = linspace(0, tend, ntimes); %  All of the times soln is output
 

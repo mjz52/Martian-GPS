@@ -1,6 +1,6 @@
 function [z0,p] = initialize_state(condition)
 global const
-a  = 6860636.6;  % Semimajor axis                        (m)
+a  = const.R_MARS*2;  % Semimajor axis                        (m)
 e  = 0.001;      % Eccentricity                          (unitless)
 i  = 45*pi/180;  % Inclination angle                     (rad)
 O  = 0.0;        % Right ascension of the ascending node (rad)
@@ -9,7 +9,7 @@ nu = 0*pi/180;   % True anamoly                          (rad)
 
 [   r0,...  % Position (m)   [eci]
     v0,...  % Velocity (m/s) [eci]
-] = orb2rv(a*(1-e*e), e, i, O, o, nu, const.mu);
+] = orb2rv(a*(1-e*e), e, i, O, o, nu, const.MU_MARS);
 
 switch condition
     case 'detumbled'
