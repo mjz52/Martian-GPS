@@ -25,6 +25,7 @@ z0 = [r0;v0;q0;w0;wG0];
 l = 0.1; w = 0.2; h = 0.3; % CubeSat dimensions
 m = 3; % CubeSat mass
 Ixx = 1/12*m*(w^2+h^2); Iyy = 1/12*m*(l^2+h^2); Izz = 1/12*m*(l^2+w^2);
+p.A = [w*h;l*h;l*w];
 
 % p is a struct with properties of the spacecraft
 p.I_B = diag([Ixx,Iyy,Izz]); % MOI matrix in B frame

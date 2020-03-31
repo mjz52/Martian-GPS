@@ -5,27 +5,47 @@ global const
 %  1 2 3 4  5  6  7  8  9  10 11 12 13 14  15  16
 
 % Unpack state
-r = state(1:3);
-v = state(4:6);
-q = state(7:10);
-w = state(11:13);
-wG = state(14:16);
+r = state(1:3); v = state(4:6); q = state(7:10);
+w = state(11:13); wG = state(14:16);
+
+% Unpack constants
+mu = const.MU_MARS; R_M = const.R_MARS; J2 = const.J2;
+
+% Unpack spacecraft property struct
+m = p.m;
+Ax = p.A(1); Ay = p.A(2); Az = p.A(3); % Area of spacecraft in body frame (m^2)
 
 % Calculate rdot
 rd = v;
 
 % Calculate vdot
-mu = const.MU_MARS; rhat = r/norm(r);
+% 2 Body Unperturbed
+rhat = r/norm(r);
 vd = -(mu/(norm(r)^2))*rhat; % 2body  acceleration
+
+% Atmospheric drag term, https://www.grc.nasa.gov/WWW/K-12/airplane/atmosmrm.html
+h = norm(r) - R_M; % altitude (m)
+if (h < 7000)
+    T = -31 - 0.000998*h;
+    P = 0.699*exp(-0.00009*h);
+else
+    T = -23.4 - 0.00222*h;
+    P = 0.699*exp(-0.00009*h);
+end
+rho = P./(0.1921*(T+273.15));
+Cd = 1.15; % Conservative estimate for Cd 
+% Get Area
+vb = rotateframe(q,v); % velocity in the body frame (m/s)
+vbhat = vb/norm(vb);
+A = dot(abs(vbhat),[Ax,Ay,Az]);
+vd = vd + -0.5*Cd*rho*A/m * norm(v)*v;
 vdx = vd(1); vdy = vd(2); vdz = vd(3);
-J2 = const.J2; R_M = const.R_MARS;
-% ax = ax + -3/2*mu*J2*R_m^2/d^5*r(1)*(1-5*r(3)^2/d^2);
-% ay = ay + -3/2*mu*J2*R_m^2/d^5*r(2)*(1-5*r(3)^2/d^2);
-% az = az + -3/2*mu*J2*R_m^2/d^5*r(3)*(3-5*r(3)^2/d^2);
+
+% J2 Perturbation
 vdx = vdx + -3/2*mu*J2*R_M^2/norm(r)^5*r(1)*(1-5*r(3)^2/norm(r)^2);
 vdy = vdy + -3/2*mu*J2*R_M^2/norm(r)^5*r(2)*(1-5*r(3)^2/norm(r)^2);
 vdz = vdz + -3/2*mu*J2*R_M^2/norm(r)^5*r(3)*(3-5*r(3)^2/norm(r)^2);
-vd = [vdx;vdy;vdz]; % J2 Gravity
+vd = [vdx;vdy;vdz]; 
 
 % Quaternion Derivative
 quat_rate = [w;0];
