@@ -31,18 +31,19 @@ view(50,10); %View plot from angle specified by AZ, EL
 
 
 t_ = [0,1];%3600*24*100]; %100 days
-k0 = [2*R_m,0.01,30*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
-sat = Satellite(k0,p);
-sat = sat.propagate(t_);
+% k0 = [2*R_m,0.01,30*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
+% sat = Satellite(k0,p);
+% sat = sat.propagate(t_);
 sat.plot_full(fig1);
-% for i = 1:6
-%     Omega = (i-1)/(6-1)*(360-0);
-%     k0 = [2*R_m,0,Omega*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
-%     sat = Satellite(k0,t_,p);
-%     sat = sat.propagate(t_);
-%     sat.plot_full(fig1);
-% % plot3(r0(1),r0(2),r0(3),'.k','MarkerSize',4); % Show starting position
-% end
+const = Constellation();
+for i = 1:6
+    Omega = (i-1)/(6-1)*(360-0);
+    k0 = [2*R_m,0,Omega*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
+    sat = Satellite(k0,p);
+    const = const.add_sat(sat);
+% plot3(r0(1),r0(2),r0(3),'.k','MarkerSize',4); % Show starting position
+end
+const = const.plot_orbit(fig1,t_);
 
 % Animate
 % t_ = linspace(t_(1),t_(end),50);
@@ -71,8 +72,7 @@ drawAxes();
 
 % Plot Orbital Elements over time
 fig2 = figure(2);
-sat = sat.getElems();
-sat.plot_elems(fig2);
+const = const.plot_elems(fig2);
 
 
 % Get ground track
@@ -80,15 +80,13 @@ fig3 = figure(3); hold on; axis equal;
 ax = [[-size(mars,2)/2, size(mars,2)/2]; [-size(mars,1)/2, size(mars,1)/2]]; 
 image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, flipud(mars));
 set(gca,'YDir','normal');
-sat = sat.getGeodetic();
-sat.plot_trace(fig3,ax);
+const = const.plot_trace(fig3,ax);
+
 
 
 % Model Coverage
 alpha = 40*pi/180;
-sat = sat.getCoverage(alpha);
-sat.plot_coverage_2D(fig3,ax);
-sat.plot_coverage_3D(fig1);
+const = const.plot_coverage(fig3,ax,fig1,alpha);
 % model_coverage(r, [lon,lat,h], alpha);
 
 
