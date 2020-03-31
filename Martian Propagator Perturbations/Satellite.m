@@ -6,16 +6,18 @@ classdef Satellite
     properties
         %Constants
         p; % Contains R, mu, J2, am, em2, bm, fm, wm
+        
         %Initial conditions
         k0; %initial orbital element state
         r0; %vector (1x3)
         v0; %vector (1x3)
+        
         %States over time
         t_; %vector (Nx1) time interval
-        x; %vector (Nx1)
+        x; %position vectors (Nx1)
         y;
         z;
-        vx;
+        vx; %velocity vecors
         vy;
         vz;
         a; %Orbital elements at each time step
@@ -32,13 +34,21 @@ classdef Satellite
         h;
         Om_theor; %Theoretical orbital elements
         om_theor;
+        lat_c; %Coverage circles (each row is for a time step)
+        lon_c;
+        x_c;
+        y_c;
+        z_c;
         name; %string
         color; %color of plot
     end
     
     methods
         
-        function obj = Satellite(k0,t,q)
+        % Initialize satllite
+        % NOTE: MAY WANT TO ADD TIME VECTOR AS INPUT FOR UNIFORMITY IN
+        % SIMULATION?
+        function obj = Satellite(k0,q)
             obj.p.R_m = q.R;
             obj.p.mu = q.mu;
             obj.p.J2 = q.J2;
@@ -47,13 +57,6 @@ classdef Satellite
             obj.p.em2 = q.em2;
             obj.p.bm = q.bm;
             obj.p.wm = q.wm;
-            
-%             obj.a0 = k0(1);
-%             obj.e0 = k0(2);
-%             obj.Om0 = k0(3);
-%             obj.I0 = k0(4);
-%             obj.om0 = k0(5);
-%             obj.nu0 = k0(6);
             obj.k0 = k0;
             [r0,v0] = kepler2posvel(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6),obj.p.mu);
             obj.r0 = r0';
@@ -68,6 +71,7 @@ classdef Satellite
         
         %% Get state values
         
+        % Determine cartesian coords for entire orbit
         function obj = propagate(obj,t)
             obj.p.pert = 1;
             z0 = [obj.r0, obj.v0]';
@@ -77,12 +81,14 @@ classdef Satellite
             obj.t_ = t_array;
         end
         
+        % Determine orbital elements for entire orbit
         function obj = getElems(obj)
             [obj.a,obj.e,obj.Om,obj.I,obj.om,obj.nu,obj.M,obj.T,obj.tp] = ...
                     posvel2kepler([obj.x,obj.y,obj.z],[obj.vx,obj.vy,obj.vz],obj.p.mu);
             [obj.Om_theor, obj.om_theor] = theor_orbit(obj.k0, obj.p, obj.t_); 
         end
         
+        % Determine geodetic coords of satellite
         function obj = getGeodetic(obj)
             lon = zeros(length(obj.t_),1);
             lat = lon; h = lon;
@@ -92,13 +98,15 @@ classdef Satellite
             obj.lon = lon; obj.lat = lat; obj.h = h;
         end
         
-        function obj = getCoverage(obj,)
-%            [lat_m, lon_m, x_m, y_m, z_m] = getCoverage(h,lat,lon,alpha);
-            %NOT FINISHED
+        % Determine circle of coverage on Mars surface
+        function obj = getCoverage(obj,alpha)
+            [obj.lat_c, obj.lon_c, obj.x_c, obj.y_c, obj.z_c] = ...
+                    sat_coverage(obj.h,obj.lat,obj.lon,alpha);
         end
         
         %% Plotting functions
         
+        % Plot entire orbit
         function plot_full(obj,fig)
             figure(fig);
             plot3(obj.x,obj.y,obj.z,'LineWidth',1,'color',getColor(obj.color));
@@ -108,6 +116,7 @@ classdef Satellite
 %             legend(leg, 'Location', 'eastoutside');
         end
         
+        % Plot satellite at given time by interpolating between points
         function plot_point(obj,fig,t)
             x_p = interp1(obj.t_,obj.x,t);
             y_p = interp1(obj.t_,obj.y,t);
@@ -121,6 +130,9 @@ classdef Satellite
             figure(fig); 
         end
         
+        % Plot 3 subplots of orbital element evolution, with theoretical
+        % variation
+        % TODO: Add nu
         function plot_elems(obj,fig)
             figure(fig);
             subplot(3,1,1); hold on;
@@ -141,15 +153,48 @@ classdef Satellite
             ylim([0 1])
         end
         
+        % Plot ground trace of satellite on 2D map
         function plot_trace(obj,fig,ax)
             figure(fig);
-            r = [obj.x obj.y obj.z]; % GROUND TRACK POINTS
-            ground_track = zeros(length(obj.x),2);
-            for i = 1:length(obj.x)
-                z = (obj.p.am*(1-obj.p.em2)./sqrt(1 - obj.p.em2*sin(obj.lat(i))^2)) .* sin(obj.lat(i));
-                ground_track(i,:) = [obj.lon(i)/pi*ax(1,2), z/obj.p.bm*ax(2,2)];
+            [x_ground, y_ground] = obj.convert_map(obj.lat,obj.lon,ax);
+            scatter(x_ground,y_ground,'.');
+        end
+        
+        % Plot coverage on 2D map
+        function plot_coverage_2D(obj,fig,ax)
+            figure(fig);
+            num_s = 8; %Number of coverages to show
+            for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
+                lat_ci = obj.lat_c(i,:);
+                lon_ci = obj.lon_c(i,:);
+                [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax);
+                plot(x_circ,y_circ,'color',getColor('black'));
             end
-            scatter(ground_track(:,1),ground_track(:,2),'.');
+        end
+        
+        % Plot coverage on 3D map
+        function plot_coverage_3D(obj,fig)
+            figure(fig);
+            num_s = 8; %Number of coverages to show
+            for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
+                x_ci = obj.x_c(i,:);
+                y_ci = obj.y_c(i,:);
+                z_ci = obj.z_c(i,:);
+                plot3(x_ci,y_ci,z_ci,'color',getColor('black'));
+            end
+        end
+        
+        %% Helper functions
+        
+        % Convert from latitude/longitude to map coordinates
+        % y=0 corresponds to the intersection with Omega=0, so
+        % 0< Omega < pi corresponds to 0 < x < x_max
+        % -pi < Omega < 0 corresponds to -x_max < x < 0
+        function [x_ground, y_ground] = convert_map(obj,lat,lon,ax)
+            z = (obj.p.am*(1-obj.p.em2)./sqrt(1 - obj.p.em2*sin(lat).^2)) .* sin(lat);
+            x_ground = lon/pi*ax(1,2);
+            y_ground = z/obj.p.bm*ax(2,2);
+%             ground_track = [lon/pi*ax(1,2), z/obj.p.bm*ax(2,2)];
         end
         
     end 

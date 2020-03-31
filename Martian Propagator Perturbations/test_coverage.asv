@@ -7,14 +7,15 @@
 % lon = geod(:,1); lat = geod(:,2); h = geod(:,3);
 
 R_m = 3389.92;
+mu = 42828.375214*secPerDay^2; p.mu = mu; %km^3/day^2
 fm = 1/169.779; %Flattening
 am = 3396.19; %Equitorial radius (km)
 em2 = 2*fm - fm^2; %Geoid eccentricity squared
 % Satellite positioning
 h = 2000;
-lat = 90*pi/180;
-alpha = 125*pi/180;
-lon = 225*pi/180;
+lat = 85*pi/180;
+alpha = 45*pi/180;
+lon = 30*pi/180;
 
 figure(1); hold on;
 % Surface coordinates of Mars
@@ -49,7 +50,7 @@ view(50,10); %View plot from angle specified by AZ, EL
 % lon_m = lon + atan2(sin(ang)*sin(beta)*cos(lat), ...
 %     cos(beta)-sin(lat)*sin(lat_m));
 
-[lat_m, lon_m, x_m, y_m, z_m] = sat_coverage(h,lat,lon,alpha);
+[lat_m, lon_m, x_m, y_m, z_m] = getCoverage(h,lat,lon,alpha)
 
 [x_c,y_c,z_c] = geod2pos(lat_m, lon_m, 0);
 plot3(x_c,y_c,z_c,'color','black','LineWidth',2);

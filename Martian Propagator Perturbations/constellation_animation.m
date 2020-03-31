@@ -32,7 +32,7 @@ view(50,10); %View plot from angle specified by AZ, EL
 
 t_ = [0,1];%3600*24*100]; %100 days
 k0 = [2*R_m,0.01,30*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
-sat = Satellite(k0,t_,p);
+sat = Satellite(k0,p);
 sat = sat.propagate(t_);
 sat.plot_full(fig1);
 % for i = 1:6
@@ -86,6 +86,9 @@ sat.plot_trace(fig3,ax);
 
 % Model Coverage
 alpha = 20*pi/180;
+sat = sat.getCoverage(alpha);
+sat.plot_coverage_2D(fig3,ax);
+sat.plot_coverage_3D(fig1);
 % model_coverage(r, [lon,lat,h], alpha);
 
 
