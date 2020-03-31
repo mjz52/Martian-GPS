@@ -163,19 +163,29 @@ classdef Satellite
         % Plot coverage on 2D map
         function plot_coverage_2D(obj,fig,ax)
             figure(fig);
-            num_s = 8; %Number of coverages to show
+            num_s = length(obj.t_)/20; %Number of coverages to show
             for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
                 lat_ci = obj.lat_c(i,:);
                 lon_ci = obj.lon_c(i,:);
                 [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax);
-                plot(x_circ,y_circ,'color',getColor('black'));
+                signs = find(diff(x_circ>=0)); %Find where sign changes
+                if isempty(signs)
+                    plot(x_circ,y_circ,'color',getColor('black'));
+                else
+                    j = 1;
+                    for k = 1:length(signs)
+                        plot(x_circ(j:signs(k)),y_circ(j:signs(k)),'color',getColor('black'));
+                        j = signs(k)+1;
+                    end
+                    plot(x_circ(j:end),y_circ(j:end),'color',getColor('black'));
+                end
             end
         end
         
         % Plot coverage on 3D map
         function plot_coverage_3D(obj,fig)
             figure(fig);
-            num_s = 8; %Number of coverages to show
+            num_s = length(obj.t_)/20; %Number of coverages to show
             for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
                 x_ci = obj.x_c(i,:);
                 y_ci = obj.y_c(i,:);

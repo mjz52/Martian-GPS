@@ -85,7 +85,7 @@ sat.plot_trace(fig3,ax);
 
 
 % Model Coverage
-alpha = 20*pi/180;
+alpha = 40*pi/180;
 sat = sat.getCoverage(alpha);
 sat.plot_coverage_2D(fig3,ax);
 sat.plot_coverage_3D(fig1);
