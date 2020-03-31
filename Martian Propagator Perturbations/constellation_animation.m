@@ -30,20 +30,19 @@ axis equal;
 view(50,10); %View plot from angle specified by AZ, EL
 
 
-t_ = [0,1];%3600*24*100]; %100 days
+% t_ = [0,1];%3600*24*100]; %100 days
 % k0 = [2*R_m,0.01,30*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
-% sat = Satellite(k0,p);
-% sat = sat.propagate(t_);
-sat.plot_full(fig1);
+
 const = Constellation();
-for i = 1:6
+for i = 1:3
     Omega = (i-1)/(6-1)*(360-0);
     k0 = [2*R_m,0,Omega*pi/180,60*pi/180,0,0,mu]; %a,e,Omega,I,omega,nu
     sat = Satellite(k0,p);
     const = const.add_sat(sat);
 % plot3(r0(1),r0(2),r0(3),'.k','MarkerSize',4); % Show starting position
 end
-const = const.plot_orbit(fig1,t_);
+const = const.plot_orbit_orbit(fig1,1); %Number of orbits
+% const = const.plot_orbit_time(fig1,1); %Duration
 
 % Animate
 % t_ = linspace(t_(1),t_(end),50);
@@ -87,7 +86,6 @@ const = const.plot_trace(fig3,ax);
 % Model Coverage
 alpha = 40*pi/180;
 const = const.plot_coverage(fig3,ax,fig1,alpha);
-% model_coverage(r, [lon,lat,h], alpha);
 
 
 

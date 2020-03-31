@@ -57,7 +57,7 @@ classdef Satellite
             obj.p.em2 = q.em2;
             obj.p.bm = q.bm;
             obj.p.wm = q.wm;
-            obj.k0 = k0;
+            obj.k0 = k0; %a,e,Omega,I,omega,nu
             [r0,v0] = kepler2posvel(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6),obj.p.mu);
             obj.r0 = r0';
             obj.v0 = v0';
@@ -67,12 +67,16 @@ classdef Satellite
             obj.I = k0(4); obj.om = k0(5); obj.nu = k0(6);
             obj.name = "a1";
             obj.color = "Blue";
+            
         end
         
         %% Get state values
         
         % Determine cartesian coords for entire orbit
         function obj = propagate(obj,t)
+            if length(t)==1
+               t = [0 t]; 
+            end
             obj.p.pert = 1;
             z0 = [obj.r0, obj.v0]';
             [t_array, z_array] = ode45(@mars_propagate,t,z0,odeset('RelTol',1e-6,'AbsTol',1e-6),obj.p);
@@ -102,6 +106,10 @@ classdef Satellite
         function obj = getCoverage(obj,alpha)
             [obj.lat_c, obj.lon_c, obj.x_c, obj.y_c, obj.z_c] = ...
                     sat_coverage(obj.h,obj.lat,obj.lon,alpha);
+        end
+        
+        function T = getPeriod(obj)
+            T =  2*pi/sqrt(obj.p.mu)*obj.k0(1)^(3/2);
         end
         
         %% Plotting functions

@@ -22,10 +22,22 @@ classdef Constellation
            obj.sats = [obj.sats, sat]; 
         end
         
-        function obj = plot_orbit(obj,fig,t_)
+        % Plot orbit based on time array (start time, end time)
+        function obj = plot_orbit_time(obj,fig,t_)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);
                 sat = sat.propagate(t_);
+                obj.sats(i) = sat;
+                sat.plot_full(fig); 
+            end
+        end
+        
+        % Plot orbit based on number of orbits
+        function obj = plot_orbit_orbit(obj,fig,N)
+            for i = 1:length(obj.sats)
+                sat = obj.sats(i);
+                T = sat.getPeriod();
+                sat = sat.propagate(N*T);
                 obj.sats(i) = sat;
                 sat.plot_full(fig); 
             end
