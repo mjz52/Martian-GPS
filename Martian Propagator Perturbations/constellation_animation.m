@@ -63,18 +63,34 @@ view(50,10); %View plot from angle specified by AZ, EL
 % end
 
 % Earth GPS Constellation
+% const = Constellation(p);
+% N1 = 6; N2 = 4;
+% alpha = 5*pi/180;
+% for i = 1:N1
+%     Omega = (i-1)/N1*360;
+%     for j = 1:N2
+%         omega = (j-1)/N2*360;
+%         k0 = [26400,0,Omega*pi/180,52*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
+%         sat = Satellite(k0,p,alpha);
+%         const = const.add_sat(sat);
+%     end
+% end
+
+% Test Ballard rosette
 const = Constellation(p);
-N1 = 6; N2 = 4;
-alpha = 5*pi/180;
+N1 = 4; % Number of planes
+N2 = 4; % Number of satellites per plane
+alpha = 20*pi/180;
 for i = 1:N1
     Omega = (i-1)/N1*360;
     for j = 1:N2
         omega = (j-1)/N2*360;
-        k0 = [26400,0,Omega*pi/180,55.5*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
+        k0 = [26378.13,0,Omega*pi/180,52*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
         sat = Satellite(k0,p,alpha);
         const = const.add_sat(sat);
     end
 end
+
 
 const = const.plot_init_pos(fig1);
 const = const.plot_orbit_orbit(fig1,1); %Number of orbits

@@ -68,10 +68,12 @@ classdef Constellation
             area = 0;
             for i = 1:length(shapes)
                 shape = shapes(i);
-                area = area + areaint(shape.Vertices(:,2),shape.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians') ;
+                area = area + sum(areaint(shape.Vertices(:,2),shape.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians'));
             end
 %             area = areaint(un.Vertices(2,:),un.Vertices(1,:),[obj.p.am,sqrt(obj.p.em2)],'radians')            
             obj.area = area;
+            figure(4);
+            plot(un);
         end
         
         %% Plotting functions

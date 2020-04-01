@@ -191,7 +191,8 @@ classdef Satellite
                 lat_ci = obj.lat_c(i,:);
                 lon_ci = obj.lon_c(i,:);
                 [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax);
-                signs = find(x_circ(1:end-1)>0 & x_circ(2:end)<0); %Find where sign changes
+                signs = find((lon_ci(1:end-1)>3 & lon_ci(2:end)<-3) | ...
+                            (lon_ci(1:end-1)<-3 & lon_ci(2:end)>3)); %Find where sign changes
                 if isempty(signs)
                     plot(x_circ,y_circ,'color',getColor('black'));
                 else
@@ -225,10 +226,13 @@ classdef Satellite
         % 0< Omega < pi corresponds to 0 < x < x_max
         % -pi < Omega < 0 corresponds to -x_max < x < 0
         function [x_ground, y_ground] = convert_map(obj,lat,lon,ax)
-            z = (obj.p.am*(1-obj.p.em2)./sqrt(1 - obj.p.em2*sin(lat).^2)) .* sin(lat);
-            x_ground = lon/pi*ax(1,2);
-            y_ground = z/obj.p.bm*ax(2,2);
-%             ground_track = [lon/pi*ax(1,2), z/obj.p.bm*ax(2,2)];
+%             z = (obj.p.am*(1-obj.p.em2)./sqrt(1 - obj.p.em2*sin(lat).^2)) .* sin(lat);
+%             x_ground = lon/pi*(ax(1,2)-ax(1,1))/2;
+%             y_ground = z/obj.p.bm*(ax(2,2)-ax(2,1))/2;
+
+            % Formulas for equirectangular projection
+            x_ground = lon/pi*(ax(1,2)-ax(1,1))/2;
+            y_ground = lat/(pi/2)*(ax(2,2)-ax(2,1))/2;
         end
         
     end 
