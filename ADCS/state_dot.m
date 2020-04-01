@@ -9,13 +9,17 @@ global const
 q1 = q(1); q2 = q(2); q3 = q(3); q4 = q(4);
 
 % Unpack constants
-mu = const.MU_MARS; R_M = const.R_MARS; J2 = const.J2;
+mu = const.MU_MARS; R_M = const.R_MARS; J2 = const.J2; 
+p_sun_mars = const.P_SUN_MARS;
 
 % Unpack spacecraft property struct
-m = p.m;
+m = p.m; % spacecraft mass (kg)
 Ax = p.A(1); Ay = p.A(2); Az = p.A(3); % Area of spacecraft in body frame (m^2)
 I_B = p.I_B; % MOI spacecraft body frame
 I_G = p.I_G; % MOI R1 + R2 + R3 (sum MOI of all three rxn wheels in G frame)
+cm = p.cm; % center of mass
+qr = p.qr; % unitless reflectance factor ranging from 0 for perfect
+% absorption to 1 for perfect reflection (NEW SMAD Eq. 19-5 pg. 571)
 
 % Calculate rdot
 rd = v;
@@ -25,13 +29,8 @@ rd = v;
 % Gravity: 2 Body Unperturbed
 rhat = r/norm(r);
 Fg1 = -m*(mu/(norm(r)^2))*rhat;
-%vd = -(mu/(norm(r)^2))*rhat; % 2body  acceleration
 
-% Gravity: J2 Perturbation
-% vdx = vdx + -3/2*mu*J2*R_M^2/norm(r)^5*r(1)*(1-5*r(3)^2/norm(r)^2);
-% vdy = vdy + -3/2*mu*J2*R_M^2/norm(r)^5*r(2)*(1-5*r(3)^2/norm(r)^2);
-% vdz = vdz + -3/2*mu*J2*R_M^2/norm(r)^5*r(3)*(3-5*r(3)^2/norm(r)^2);
-% vd = [vdx;vdy;vdz]; 
+% Gravity: J2 Perturbation 
 Fg2x = -m*3/2*mu*J2*R_M^2/norm(r)^5*r(1)*(1-5*r(3)^2/norm(r)^2);
 Fg2y = -m*3/2*mu*J2*R_M^2/norm(r)^5*r(2)*(1-5*r(3)^2/norm(r)^2);
 Fg2z = -m*3/2*mu*J2*R_M^2/norm(r)^5*r(3)*(3-5*r(3)^2/norm(r)^2);
@@ -48,7 +47,7 @@ e_n = [2*q1+q2 + 2*q3*q4;...
 % gravity torque about COM in body frame:
 Mg = 3*mu/norm(r)^3*skew(e_n)*I_B*e_n;
 
-% Atmospheric drag term
+% 2) Atmospheric Drag
 % https://www.grc.nasa.gov/WWW/K-12/airplane/atmosmrm.html
 h = norm(r) - R_M; % altitude (m)
 if (h < 7000)
@@ -60,16 +59,28 @@ else
 end
 rho = P./(0.1921*(T+273.15));
 Cd = 1.15; % Conservative estimate for Cd 
-% Get Area
+% Get Area:
 vb = rotateframe(q,v); % velocity in the body frame (m/s)
 vbhat = vb/norm(vb);
-A = dot(abs(vbhat),[Ax,Ay,Az]);
-Fa = -0.5*Cd*rho*A*norm(v)*v; % Force due to atmospheric drag (N)
-%vd = vd + Fa/m;
-%vdx = vd(1); vdy = vd(2); vdz = vd(3);
+A = dot(abs(vbhat),[Ax;Ay;Az]);
 
-% Acceleration
-F = Fg + Fa;
+% Atmospheric Drag Force & Torque
+Fa = -0.5*Cd*rho*A*norm(v)*v; % Force due to atmospheric drag (N)
+cp = [0.001;0.001;0.001]; % TODO: actually calculate or estimate this
+Ma = cross(cp-cm,Fa); % Aerodynamic torque
+
+% 3) Solar Radiation Pressure
+% The New SMAD Eq. 19-5, pg. 571
+sun_vector = [1;1;1]; % Temporary, TODO: create sensors struct, sim  measurement there
+% sun_vector is vector pointing from origin of B to the location of the sun
+sun_vector_hat = sun_vector/norm(sun_vector);
+As = dot(abs(sun_vector_hat),[Ax;Ay;Az]); % Incident area from sun
+Fs = -p_sun_mars*As*(1+qr)*sun_vector_hat;
+cps = [0.001;0.001;0.001]; % TODO: actually calculate or estimate the center of pressure
+Ms = cross(cps-cm,Fs);
+
+% Velocity Derivative, Acceleration
+F = Fg + Fa + Fs;
 vd = F/m;
 
 % Quaternion Derivative
@@ -80,10 +91,7 @@ qd = quat_cross_mult(0.5*quat_rate,q);
 wGd = [0;0;0]; % temporary
 
 % Angular Velocity Derivative
-M = Mg; % moment on spacecraft
-
-% Need to add disturbance torques, rxn wheels
-% wd = I_B_inv*(M-cross(w,p.I_B*w)); % No RWA
+M = Mg + Ma + Ms; % moment on spacecraft
 wd = inv(I_B+I_G)*(M-I_G*wGd-cross(w,((I_B+I_G)*w+I_G*wG))); % with RWA
 
 statedot = [rd;vd;qd;wd;wGd];

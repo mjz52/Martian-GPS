@@ -30,6 +30,8 @@ p.A = [w*h;l*h;l*w];
 % p is a struct with properties of the spacecraft
 p.I_B = diag([Ixx,Iyy,Izz]); % MOI matrix in B frame
 p.m = m; % kg
+p.cm = [0;0;0]; % center of mass in body frame
+p.qr = 0.6; % example value from New SMAD
 
 p.I_G = diag([.01,.01,.01]); % MOI matrix for RWA
 end
