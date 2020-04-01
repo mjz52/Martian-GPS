@@ -9,7 +9,7 @@
 function [Om, om] = theor_orbit(k0, p, t)
 
 [a0,e0,Om0,I0,om0,nu0] = deal(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6));
-R_m = p.R_m; mu = p.mu; J2 = p.J2;
+R_m = p.R; mu = p.mu; J2 = p.J2;
 
 T =  2*pi/sqrt(mu)*a0^(3/2); %orbital period
 n = 2*pi/T;

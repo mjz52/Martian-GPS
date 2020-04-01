@@ -6,6 +6,7 @@ classdef Satellite
     properties
         %Constants
         p; % Contains R, mu, J2, am, em2, bm, fm, wm
+        alpha; % Angle of coverage
         
         %Initial conditions
         k0; %initial orbital element state
@@ -48,8 +49,8 @@ classdef Satellite
         % Initialize satllite
         % NOTE: MAY WANT TO ADD TIME VECTOR AS INPUT FOR UNIFORMITY IN
         % SIMULATION?
-        function obj = Satellite(k0,q)
-            obj.p.R_m = q.R;
+        function obj = Satellite(k0,q,alpha)
+            obj.p.R = q.R;
             obj.p.mu = q.mu;
             obj.p.J2 = q.J2;
             obj.p.am = q.am;
@@ -65,9 +66,16 @@ classdef Satellite
             obj.vx = v0(1); obj.vy = v0(2); obj.vz = v0(3);
             obj.a = k0(1); obj.e = k0(2); obj.Om = k0(3);
             obj.I = k0(4); obj.om = k0(5); obj.nu = k0(6);
+            obj.t_ = [0];
             obj.name = "a1";
             obj.color = "Blue";
+            obj.alpha = alpha;
             
+            obj.lat_c = [];
+            obj.lon_c = [];
+            obj.x_c = [];
+            obj.y_c = [];
+            obj.z_c = [];
         end
         
         %% Get state values
@@ -103,9 +111,9 @@ classdef Satellite
         end
         
         % Determine circle of coverage on Mars surface
-        function obj = getCoverage(obj,alpha)
+        function obj = getCoverage(obj)
             [obj.lat_c, obj.lon_c, obj.x_c, obj.y_c, obj.z_c] = ...
-                    sat_coverage(obj.h,obj.lat,obj.lon,alpha);
+                    sat_coverage(obj.h,obj.lat,obj.lon,obj.alpha,obj.p.R);
         end
         
         function T = getPeriod(obj)
@@ -126,9 +134,15 @@ classdef Satellite
         
         % Plot satellite at given time by interpolating between points
         function plot_point(obj,fig,t)
-            x_p = interp1(obj.t_,obj.x,t);
-            y_p = interp1(obj.t_,obj.y,t);
-            z_p = interp1(obj.t_,obj.z,t);
+            try
+                x_p = interp1(obj.t_,obj.x,t);
+                y_p = interp1(obj.t_,obj.y,t);
+                z_p = interp1(obj.t_,obj.z,t);
+            catch
+                x_p = obj.r0(1);
+                y_p = obj.r0(2);
+                z_p = obj.r0(3);
+            end
             if isnan(x_p)
                 x_p = (t<t(1))*x_p(1) + (t>t(end))*x_p(end);
                 y_p = (t<t(1))*y_p(1) + (t>t(end))*y_p(end);
@@ -152,10 +166,10 @@ classdef Satellite
             legend("$\Omega$","$I$","$\omega$","$\Omega_{theor}$","$\omega_{theor}$",'interpreter','latex','location','eastoutside');
             xlabel('t (days)','interpreter','latex'); ylabel('Orbital element (rad)','interpreter','latex');
             ylim([0 2*pi]);
-            subplot(3,1,2);
+            subplot(3,1,2); hold on;
             plot(obj.t_,obj.a);
             legend("a, semi-major axis",'location','eastoutside');
-            subplot(3,1,3); 
+            subplot(3,1,3); hold on;
             plot(obj.t_,obj.e);
             legend("e, eccentricity",'location','eastoutside');
             ylim([0 1])
@@ -171,12 +185,13 @@ classdef Satellite
         % Plot coverage on 2D map
         function plot_coverage_2D(obj,fig,ax)
             figure(fig);
-            num_s = length(obj.t_)/20; %Number of coverages to show
+%             num_s = length(obj.t_)/20; %Number of coverages to show
+            num_s = 1;
             for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
                 lat_ci = obj.lat_c(i,:);
                 lon_ci = obj.lon_c(i,:);
                 [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax);
-                signs = find(diff(x_circ>=0)); %Find where sign changes
+                signs = find(x_circ(1:end-1)>0 & x_circ(2:end)<0); %Find where sign changes
                 if isempty(signs)
                     plot(x_circ,y_circ,'color',getColor('black'));
                 else
@@ -193,7 +208,8 @@ classdef Satellite
         % Plot coverage on 3D map
         function plot_coverage_3D(obj,fig)
             figure(fig);
-            num_s = length(obj.t_)/20; %Number of coverages to show
+%             num_s = length(obj.t_)/20; %Number of coverages to show
+            num_s = 1;
             for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
                 x_ci = obj.x_c(i,:);
                 y_ci = obj.y_c(i,:);

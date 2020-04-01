@@ -4,7 +4,7 @@
 
 % Constants
 secPerDay = 3600*24; % s/day
-R_m = 3389.92; p.R_m = R_m; %km
+R_m = 3389.92; p.R = R_m; %km
 mu = 42828.375214*secPerDay^2; p.mu = mu; %km^3/day^2
 fm = 1/169.779; %Flattening
 am = 3396.19; %Equitorial radius (km)

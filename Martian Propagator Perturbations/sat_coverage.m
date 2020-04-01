@@ -9,9 +9,10 @@
 %
 % OUTPUT:
 % Array containing 
-function [lat_m, lon_m, x_m, y_m, z_m] = sat_coverage(h,lat,lon,alpha)
+function [lat_m, lon_m, x_m, y_m, z_m] = sat_coverage(h,lat,lon,alpha,R)
 
-R = 3389.92;
+% R = 3389.92;
+R = R;
 
 %% OLD TECHNIQUE FROM FORUM - DOES NOT SEEM ACCURATE
 % % Calculate ground trace
@@ -33,8 +34,8 @@ R = 3389.92;
 a_cov = min(alpha, 2*asin(R./(R+h)));
 phi = real(asin((R+h)/R.*sin(a_cov/2)))-a_cov/2; %get Earth-centered angle, real in case rounding error
 ang = linspace(0,2*pi,1000);
-lat_m = phi*cos(ang); %Sweep in a circle around that point
-lon_m = phi*sin(ang);
+lat_m = phi*sin(ang); %Sweep in a circle around that point
+lon_m = phi*cos(ang);
 
 % lon_m = mod(lon_m + lon,2*pi); %Offset by the center longitude, bring into range
 % lat_m = lat_m + lat;

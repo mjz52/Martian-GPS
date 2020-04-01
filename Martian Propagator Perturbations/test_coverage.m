@@ -49,7 +49,7 @@ view(50,10); %View plot from angle specified by AZ, EL
 % lon_m = lon + atan2(sin(ang)*sin(beta)*cos(lat), ...
 %     cos(beta)-sin(lat)*sin(lat_m));
 
-[lat_m, lon_m, x_m, y_m, z_m] = sat_coverage(h,lat,lon,alpha);
+[lat_m, lon_m, x_m, y_m, z_m] = sat_coverage(h,lat,lon,alpha,R_m);
 
 [x_c,y_c,z_c] = geod2pos(lat_m, lon_m, 0);
 plot3(x_c,y_c,z_c,'color','black','LineWidth',2);

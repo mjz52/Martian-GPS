@@ -15,7 +15,7 @@
 %        t - [1x1] current time
 function dz = mars_propagate(~,z,q)
 % Mars properties
-mu = q.mu; R_m = q.R_m; p = q.pert;
+mu = q.mu; R_m = q.R; p = q.pert;
 % p = q.pert;
 % mu = 42828.375214; %km^3/s^2
 % R_m = 3389.92; %km
