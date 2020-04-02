@@ -1,5 +1,7 @@
 function [z0,p] = initialize_state(condition)
 global const
+global actuators;
+global sensors;
 a  = const.R_MARS*2;  % Semimajor axis                        (m)
 e  = 0.001;      % Eccentricity                          (unitless)
 i  = 45*pi/180;  % Inclination angle                     (rad)
@@ -34,5 +36,17 @@ p.cm = [0;0;0]; % center of mass in body frame
 p.qr = 0.6; % example value from New SMAD
 
 p.I_G = diag([.01,.01,.01]); % MOI matrix for RWA
+
+% Actuators Struct:
+actuators = struct();
+% commanded angular velocity vector of rxn wheels (rad/s):
+actuators.wG_commanded_rate = [0;0;0]; 
+% commanded ramp rate (rad/s^2) of rxn wheels:
+actuators.wG_commanded_ramp = [0;0;0];
+
+% Sensors Struct:
+sensors = struct();
+%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(0);
+sensors.sun_sensor.sun_vector = [1;1;1];
 end
 

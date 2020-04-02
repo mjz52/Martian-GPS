@@ -1,9 +1,20 @@
 function statedot = state_dot(t,state,p)
 global const
+global actuators
+global sensors
 % state is column vec:
 % [x y z vx vy vz q1 q2 q3 q4 wx wy wz wgx wgy wgz]
 %  1 2 3 4  5  6  7  8  9  10 11 12 13 14  15  16
 
+%% Read Sensors
+% TODO: add more sensors, add noise to sensor readings
+%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(t); % TODO: SPEEED
+sensors.sun_sensor.sun_vector = [1;1;1];
+
+%% Command Actuators
+% TODO
+
+%% Dynamics Update
 % Unpack state
 [r,v,q,w,wG] = unpack_state(state);
 q1 = q(1); q2 = q(2); q3 = q(3); q4 = q(4);
@@ -71,9 +82,10 @@ Ma = cross(cp-cm,Fa); % Aerodynamic torque
 
 % 3) Solar Radiation Pressure
 % The New SMAD Eq. 19-5, pg. 571
-sun_vector = [1;1;1]; % Temporary, TODO: create sensors struct, sim  measurement there
+% Rotate sun vector from inertial frame to body frame:
+sun_vector_body = rotateframe(q,sensors.sun_sensor.sun_vector); 
 % sun_vector is vector pointing from origin of B to the location of the sun
-sun_vector_hat = sun_vector/norm(sun_vector);
+sun_vector_hat = sun_vector_body/norm(sun_vector_body);
 As = dot(abs(sun_vector_hat),[Ax;Ay;Az]); % Incident area from sun
 Fs = -p_sun_mars*As*(1+qr)*sun_vector_hat;
 cps = [0.001;0.001;0.001]; % TODO: actually calculate or estimate the center of pressure

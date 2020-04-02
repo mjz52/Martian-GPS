@@ -30,7 +30,11 @@ const.R_EARTH= 6378137.0;
 %Equatorial Radius of Earth (m)
 
 %% Other
-const.mu_sun = 1.32712440018E20; % positive scalar
+const.INITIAL_TIME = juliandate(datetime(datestr(now)) + days(0)); 
+% Get current time -- assume beginning of sim is today for now
+% Time at t = 0
+
+%const.mu_sun = 1.32712440018E20; % positive scalar
 % Sun's gravitational constant (m^3/s^2)
 
 end
