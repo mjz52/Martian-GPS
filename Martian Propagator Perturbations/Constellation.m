@@ -49,16 +49,33 @@ classdef Constellation
                 if isempty(signs)
                     shapes = [shapes, polyshape(init_lon_cov,init_lat_cov)];
                 else
-                    j = 1;
                     % ADDED EXTRA DOT TO PREVENT WEIRD REGIONS
-                    for k = 1:length(signs)
-                        shapes = [shapes, ...
-                            polyshape([init_lon_cov(j:signs(k)), sign(init_lon_cov(signs(k)))*pi],...
-                                       [init_lat_cov(j:signs(k)), 0])];
-                        j = signs(k)+1;
+                    % IF REGION DOES NOT WRAP AROUND POLE
+                    % max(init_lon_cov) - min(init_lon_cov) < 6 && 
+                    if isempty(find(abs(init_lon_cov)< 0.1))
+                        j = 1;
+                        for k = 1:length(signs)
+                            shapes = [shapes, ...
+                                polyshape([init_lon_cov(j:signs(k)), sign(init_lon_cov(signs(k)))*pi],...
+                                           [init_lat_cov(j:signs(k)), 0])];
+                            j = signs(k)+1;
+                        end
+                        shapes = [shapes, polyshape([init_lon_cov(j:end), sign(init_lon_cov(end))*pi],...
+                                    [init_lat_cov(j:end), 0])];
+                    else % IF REGION WRAPS AROUND POLES
+                        j = 1;
+                        for k = 1:length(signs)
+                            
+                            shapes = [shapes, ...
+                                polyshape([init_lon_cov(j), init_lon_cov(j:signs(k)), init_lon_cov(signs(k))],...
+                                           [sign(init_lat_cov(j))*pi/2, init_lat_cov(j:signs(k)), ...
+                                            sign(init_lat_cov(j))*pi/2])];
+                            j = signs(k)+1;
+                        end
+                        shapes = [shapes, polyshape([init_lon_cov(j), init_lon_cov(j:end), init_lon_cov(end)],...
+                                           [sign(init_lat_cov(j))*pi/2, init_lat_cov(j:end), ...
+                                            sign(init_lat_cov(j))*pi/2])];
                     end
-                    shapes = [shapes, polyshape([init_lon_cov(j:end), sign(init_lon_cov(end))*pi],...
-                                [init_lat_cov(j:end), 0])];
                 end 
             end
             
@@ -66,9 +83,14 @@ classdef Constellation
             
             un = union(shapes);
             area = 0;
-            for i = 1:length(shapes)
-                shape = shapes(i);
-                area = area + sum(areaint(shape.Vertices(:,2),shape.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians'));
+            hs = holes(un);
+            outer = rmholes(un);
+            area = areaint(outer.Vertices(:,2),outer.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians');
+            for i = 1:length(hs)
+%                 shape = shapes(i);
+%                 area = area + sum(areaint(shape.Vertices(:,2),shape.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians'));
+                h = hs(i);
+                area = area - areaint(h.Vertices(:,2),h.Vertices(:,1),[obj.p.am,sqrt(obj.p.em2)],'radians');
             end
 %             area = areaint(un.Vertices(2,:),un.Vertices(1,:),[obj.p.am,sqrt(obj.p.em2)],'radians')            
             obj.area = area;
