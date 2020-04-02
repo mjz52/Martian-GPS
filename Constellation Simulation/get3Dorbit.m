@@ -1,4 +1,6 @@
 % Function that returns 3D orbit from input orbital parameters
+% Differs from plot3D orbit, in the case where we want to extract/manipulate
+% 3D orbit data in script
 % Kelly Jawork, 3.30.20
 function [r,rx,ry,rz] = get3Dorbit(a,e,incl,RA,w,TA)
 % a = semimajor axis
