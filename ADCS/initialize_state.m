@@ -37,16 +37,19 @@ p.qr = 0.6; % example value from New SMAD
 
 p.I_G = diag([.01,.01,.01]); % MOI matrix for RWA
 
+% Sensors Struct:
+sensors = struct();
+sensors.gyro_bias= const.GYRO_BIAS*randn(3,1);
+sensors.gyro_noise = const.GYRO_NOISE*randn(3,1);
+%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(0);
+sensors.sun_sensor.sun_vector = sensors_get_sun_vector(0);
+sensors.rwa_rate = sensors_get_rwa_rate(wG0);
+
 % Actuators Struct:
 actuators = struct();
 % commanded angular velocity vector of rxn wheels (rad/s):
-actuators.wG_commanded_rate = [0;0;0]; 
+actuators.rwa_rate_commanded = [0;0;0]; 
 % commanded ramp rate (rad/s^2) of rxn wheels:
-actuators.wG_commanded_ramp = [0;0;0];
-
-% Sensors Struct:
-sensors = struct();
-%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(0);
-sensors.sun_sensor.sun_vector = [1;1;1];
+actuators.rwa_ramp_commanded = [0;0;0];
 end
 
