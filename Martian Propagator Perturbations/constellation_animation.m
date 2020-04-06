@@ -5,25 +5,25 @@ clear all; clc; close all;
 warning('off');
 % Constants
 secPerDay = 3600*24; % s/day
-% R_m = 3389.92; p.R = R_m; %km
-% mu = 42828.375214*secPerDay^2; p.mu = mu; %km^3/day^2
-% p.fm = 1/169.779; %Flattening
-% p.am = 3396.19; %Equitorial radius (km)
-% p.em2 = 2*p.fm - p.fm^2; %Geoid eccentricity squared
-% p.wm = 0.0000708822; %rotation rate (rad/s)
-% p.bm = p.am*sqrt(1-p.em2); %Polar radius (km)
-% C20 = -0.8750220924537000E-03; l = 2; m = 0;
-% J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20; p.J2 = J2;
+R_m = 3389.92; p.R = R_m; %km
+mu = 42828.375214*secPerDay^2; p.mu = mu; %km^3/day^2
+p.fm = 1/169.779; %Flattening
+p.am = 3396.19; %Equitorial radius (km)
+p.em2 = 2*p.fm - p.fm^2; %Geoid eccentricity squared
+p.wm = 0.0000708822; %rotation rate (rad/s)
+p.bm = p.am*sqrt(1-p.em2); %Polar radius (km)
+C20 = -0.8750220924537000E-03; l = 2; m = 0;
+J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20; p.J2 = J2;
 
 % Earth, comment out when done
-mu = 398600.435436*secPerDay^2; p.mu = mu;
-J2 = 1082.645e-6; p.J2 = J2;
-R_m = 6371.01; p.R = R_m;
-p.am = 6378.137;          %km Earth geoid sma
-p.fm = 1.0/298.257223563; %Earth geoid flattening
-p.em2 = 2*p.fm - p.fm^2;      % Earth geoid eccentricity squared
-p.wm = 7.292115e-5;       %rad/s rotation rate of the Earth
-p.bm = p.am*sqrt(1-p.em2);
+% mu = 398600.435436*secPerDay^2; p.mu = mu;
+% J2 = 1082.645e-6; p.J2 = J2;
+% R_m = 6371.01; p.R = R_m;
+% p.am = 6378.137;          %km Earth geoid sma
+% p.fm = 1.0/298.257223563; %Earth geoid flattening
+% p.em2 = 2*p.fm - p.fm^2;      % Earth geoid eccentricity squared
+% p.wm = 7.292115e-5;       %rad/s rotation rate of the Earth
+% p.bm = p.am*sqrt(1-p.em2);
 
 
 fig1 = figure(1); hold on; axis equal;
@@ -79,13 +79,13 @@ view(50,10); %View plot from angle specified by AZ, EL
 % Test Ballard rosette
 const = Constellation(p);
 N1 = 4; % Number of planes
-N2 = 4; % Number of satellites per plane
+N2 = 5; % Number of satellites per plane
 alpha = 20*pi/180;
 for i = 1:N1
     Omega = (i-1)/N1*360;
     for j = 1:N2
         omega = (j-1)/N2*360;
-        k0 = [26378.13,0,Omega*pi/180,52*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
+        k0 = [R_m+22000,0,Omega*pi/180,45*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
         sat = Satellite(k0,p,alpha);
         const = const.add_sat(sat);
     end

@@ -64,17 +64,20 @@ classdef Constellation
                                     [init_lat_cov(j:end), 0])];
                     else % IF REGION WRAPS AROUND POLES
                         j = 1;
+                        % IF WRAPS AROUND NORTH POLE
+                        if max(init_lat_cov)+min(init_lat_cov)>0
+                            si = 1;
+                        else %IF WRAPS AROUND SOUTH POLE
+                            si = -1;
+                        end
                         for k = 1:length(signs)
-                            
                             shapes = [shapes, ...
                                 polyshape([init_lon_cov(j), init_lon_cov(j:signs(k)), init_lon_cov(signs(k))],...
-                                           [sign(init_lat_cov(j))*pi/2, init_lat_cov(j:signs(k)), ...
-                                            sign(init_lat_cov(j))*pi/2])];
+                                           [si*pi/2, init_lat_cov(j:signs(k)), si*pi/2])];
                             j = signs(k)+1;
                         end
                         shapes = [shapes, polyshape([init_lon_cov(j), init_lon_cov(j:end), init_lon_cov(end)],...
-                                           [sign(init_lat_cov(j))*pi/2, init_lat_cov(j:end), ...
-                                            sign(init_lat_cov(j))*pi/2])];
+                                           [si*pi/2, init_lat_cov(j:end), si*pi/2])];
                     end
                 end 
             end
