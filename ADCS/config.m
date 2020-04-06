@@ -8,6 +8,11 @@ global const
 % MGPS epoch
 const.INITIAL_TIME = datetime(2020,5,3,9,0,2,'TimeZone','UTCLeapSeconds');
 
+npointspers = 100;
+const.dt = 1/npointspers; % seconds
+
+const.TEND = 4*3600; % end of simulation
+
 %% Universal Constants
 % Astronomical unit [m]
 const.AU = 149597870700;
@@ -31,6 +36,9 @@ const.P_SUN_MARS = 1367/1.524^2/const.C_LIGHT;
 
 % Mars eccentricity (orbit around Sun)
 const.e_MARS = 0.0934;
+
+% Mars semimajor axis
+const.a_MARS = 1.524*const.AU; % m
 
 % Mars Perihelion Date: 8/3/2020 9:02 UTC
 perihelion_date = datetime(2020,8,3,9,0,2,'TimeZone','UTCLeapSeconds');
