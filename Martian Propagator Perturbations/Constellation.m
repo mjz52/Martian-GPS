@@ -31,6 +31,10 @@ classdef Constellation
         
         %% Calculation functions
         
+        % This is an attempt to calculate the area covered by all the
+        % circles. At the end, this plots a 2D map of all regions that have
+        % at least one satellite within the cone of coverage. The area
+        % calculation is not ideal tho
         function obj = get_coverage(obj)
             % Store initial coverage regions
             shapes = [];
@@ -103,7 +107,8 @@ classdef Constellation
         
         %% Plotting functions
         
-        % Plot orbit based on time array (start time, end time)
+        % Plot orbit based on time array (start time, end time). Loop over
+        % all satellites in constellation
         function obj = plot_orbit_time(obj,fig,t_)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);
@@ -115,7 +120,8 @@ classdef Constellation
             end
         end
         
-        % Plot orbit based on number of orbits
+        % Plot orbit based on number of orbits. Loop over
+        % all satellites in constellation
         function obj = plot_orbit_orbit(obj,fig,N)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);
@@ -128,6 +134,8 @@ classdef Constellation
             end
         end
         
+        % Plot initial positions of satellites. Loop over
+        % all satellites in constellation
         function obj = plot_init_pos(obj,fig)
            for i = 1:length(obj.sats)
               sat = obj.sats(i);
@@ -135,6 +143,8 @@ classdef Constellation
            end
         end
         
+        % Plot oribtal elements of satellites. Loop over
+        % all satellites in constellation
         function obj = plot_elems(obj,fig)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);
@@ -146,6 +156,8 @@ classdef Constellation
             end
         end
         
+        % Plot traces of satellites. Loop over
+        % all satellites in constellation
         function obj = plot_trace(obj,fig,ax)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);
@@ -157,6 +169,8 @@ classdef Constellation
             end
         end
         
+        %Plot coverage circles of satellites. Loop over
+        % all satellites in constellation
         function obj = plot_coverage(obj,fig2D,ax,fig3D)
             for i = 1:length(obj.sats)
                 sat = obj.sats(i);

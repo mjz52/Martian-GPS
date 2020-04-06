@@ -31,15 +31,13 @@ R = R;
 %     cos(beta)-sin(lat).*sin(lat_m));
 
 %% MY TECHNIQUE
-a_cov = min(alpha, 2*asin(R./(R+h)));
-phi = real(asin((R+h)/R.*sin(a_cov/2)))-a_cov/2; %get Earth-centered angle, real in case rounding error
+a_cov = min(alpha, 2*asin(R./(R+h))); % Get maximum angle of coverage from satellite
+phi = real(asin((R+h)/R.*sin(a_cov/2)))-a_cov/2; %get Earth-centered coverage angle, real in case rounding error
 ang = linspace(0,2*pi,1000);
-lat_m = phi*sin(ang); %Sweep in a circle around that point
+lat_m = phi*sin(ang); %Sweep in a circle about the "x" axis
 lon_m = phi*cos(ang);
 
-% lon_m = mod(lon_m + lon,2*pi); %Offset by the center longitude, bring into range
-% lat_m = lat_m + lat;
-[x_m,y_m,z_m] = geod2pos(lat_m,lon_m,0);
+[x_m,y_m,z_m] = geod2pos(lat_m,lon_m,0); % Convert initial lat,lon coords into cartesian
 % Rotate cartesian points by lat and lon
 for i = 1:size(lat,1)
     R_lon = [cos(lon(i)) sin(lon(i)) 0;
@@ -53,7 +51,7 @@ for i = 1:size(lat,1)
     y_m(i,:) = r_rot(2,:);
     z_m(i,:) = r_rot(3,:);
 end
-% Get closest lat and lon
+% Get closest lat and lon to those newly rotated points
 for i = 1:size(lat_m,1)
     for j = 1:size(lat_m,2)
         [lon_i, lat_i, h_i] = Geodetic([x_m(i,j),y_m(i,j),z_m(i,j)]);
@@ -62,7 +60,9 @@ for i = 1:size(lat_m,1)
     end
 end
 
-% Get cartesian points corresponding to those lat and lon
+% Get cartesian points corresponding to those lat and lon (since the
+% cartesian points calculated above lie on a perfect sphere, not
+% necessarily the oblate surface)
 [x_m,y_m,z_m] = geod2pos(lat_m,lon_m,0);
 
 

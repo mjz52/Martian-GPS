@@ -58,7 +58,8 @@ classdef Satellite
             obj.p.em2 = q.em2;
             obj.p.bm = q.bm;
             obj.p.wm = q.wm;
-            obj.k0 = k0; %a,e,Omega,I,omega,nu
+            obj.k0 = k0; %array containing a,e,Omega,I,omega,nu
+            % Initialize position using orbital elements
             [r0,v0] = kepler2posvel(k0(1),k0(2),k0(3),k0(4),k0(5),k0(6),obj.p.mu);
             obj.r0 = r0';
             obj.v0 = v0';
@@ -82,18 +83,20 @@ classdef Satellite
         
         % Determine cartesian coords for entire orbit
         function obj = propagate(obj,t)
+            % Add t=0 if only end time is given
             if length(t)==1
                t = [0 t]; 
             end
-            obj.p.pert = 1;
+            obj.p.pert = 1; %Set pertubrations on
             z0 = [obj.r0, obj.v0]';
-            [t_array, z_array] = ode45(@mars_propagate,t,z0,odeset('RelTol',1e-6,'AbsTol',1e-6),obj.p);
+            [t_array, z_array] = ode45(@mars_propagate,t,z0,odeset('RelTol',1e-6,'AbsTol',1e-6),obj.p); %Integration
             obj.x = z_array(:,1); obj.y = z_array(:,2); obj.z = z_array(:,3);
             obj.vx = z_array(:,4); obj.vy = z_array(:,5); obj.vz = z_array(:,6);
             obj.t_ = t_array;
         end
         
-        % Determine orbital elements for entire orbit
+        % Determine orbital elements for entire orbit by converting
+        % Cartesian components
         function obj = getElems(obj)
             [obj.a,obj.e,obj.Om,obj.I,obj.om,obj.nu,obj.M,obj.T,obj.tp] = ...
                     posvel2kepler([obj.x,obj.y,obj.z],[obj.vx,obj.vy,obj.vz],obj.p.mu);
@@ -104,25 +107,28 @@ classdef Satellite
         function obj = getGeodetic(obj)
             lon = zeros(length(obj.t_),1);
             lat = lon; h = lon;
+            % Convert each cartesian position into lat, lon and altitude
             for i = 1:length(obj.t_)
                 [lon(i), lat(i), h(i)] = Geodetic([obj.x(i) obj.y(i) obj.z(i)]);
             end
             obj.lon = lon; obj.lat = lat; obj.h = h;
         end
         
-        % Determine circle of coverage on Mars surface
+        % Determine circle of coverage on Mars surface for each
+        % lat,lon,altitude point
         function obj = getCoverage(obj)
             [obj.lat_c, obj.lon_c, obj.x_c, obj.y_c, obj.z_c] = ...
                     sat_coverage(obj.h,obj.lat,obj.lon,obj.alpha,obj.p.R);
         end
         
+        % Return period of orbit using initial conditions
         function T = getPeriod(obj)
             T =  2*pi/sqrt(obj.p.mu)*obj.k0(1)^(3/2);
         end
         
         %% Plotting functions
         
-        % Plot entire orbit
+        % Plot entire orbit. fig is the figure handle
         function plot_full(obj,fig)
             figure(fig);
             plot3(obj.x,obj.y,obj.z,'LineWidth',1,'color',getColor(obj.color));
@@ -132,7 +138,8 @@ classdef Satellite
 %             legend(leg, 'Location', 'eastoutside');
         end
         
-        % Plot satellite at given time by interpolating between points
+        % Plot satellite at given time by interpolating within time array
+        % fig is the figure handle
         function plot_point(obj,fig,t)
             try
                 x_p = interp1(obj.t_,obj.x,t);
@@ -153,7 +160,7 @@ classdef Satellite
         end
         
         % Plot 3 subplots of orbital element evolution, with theoretical
-        % variation
+        % values. fig is the figure handle
         % TODO: Add nu
         function plot_elems(obj,fig)
             figure(fig);
@@ -175,27 +182,27 @@ classdef Satellite
             ylim([0 1])
         end
         
-        % Plot ground trace of satellite on 2D map
+        % Plot ground trace of satellite on 2D map. fig is the figure handle
         function plot_trace(obj,fig,ax)
             figure(fig);
-            [x_ground, y_ground] = obj.convert_map(obj.lat,obj.lon,ax);
+            [x_ground, y_ground] = obj.convert_map(obj.lat,obj.lon,ax); %Convert lat,lon to coords on 2D map
             scatter(x_ground,y_ground,'.');
         end
         
-        % Plot coverage on 2D map
+        % Plot coverage circles on 2D map. fig is the figure handle
         function plot_coverage_2D(obj,fig,ax)
             figure(fig);
 %             num_s = length(obj.t_)/20; %Number of coverages to show
-            num_s = 1;
+            num_s = 1; %Number of circles to show for a given satellite
             for i = 1:round(length(obj.t_)/(num_s-1)):length(obj.t_)
-                lat_ci = obj.lat_c(i,:);
+                lat_ci = obj.lat_c(i,:); %Get lat,lon for the circle
                 lon_ci = obj.lon_c(i,:);
-                [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax);
+                [x_circ, y_circ] = obj.convert_map(lat_ci,lon_ci,ax); %Convert to coords on 2D map
                 signs = find((lon_ci(1:end-1)>3 & lon_ci(2:end)<-3) | ...
-                            (lon_ci(1:end-1)<-3 & lon_ci(2:end)>3)); %Find where sign changes
-                if isempty(signs)
+                            (lon_ci(1:end-1)<-3 & lon_ci(2:end)>3)); %Find where circle wraps around
+                if isempty(signs) %If the circle does not cross the ends
                     plot(x_circ,y_circ,'color',getColor('black'));
-                else
+                else %If the circles crosses the ends. Break up these circles to prevent horizontal lines
                     j = 1;
                     for k = 1:length(signs)
                         plot(x_circ(j:signs(k)),y_circ(j:signs(k)),'color',getColor('black'));
@@ -206,7 +213,7 @@ classdef Satellite
             end
         end
         
-        % Plot coverage on 3D map
+        % Plot coverage on 3D map. fig is the figure handle
         function plot_coverage_3D(obj,fig)
             figure(fig);
 %             num_s = length(obj.t_)/20; %Number of coverages to show

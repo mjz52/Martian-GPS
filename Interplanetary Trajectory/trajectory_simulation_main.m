@@ -33,5 +33,8 @@ t1 = datetime(2020,04,05,23,23,00);
 t2 = datetime(2021,04,05,23,23,00);
 t_ = linspace(t1,t2,365)';
 %[pos,vel] = planetEphemeris(EPHEMERISTIME, CENTER, TARGET, MODEL, UNITS, ACTION) 
-[posE,velE] = planetEphemeris(juliandate(t_),'SolarSystem','Earth','405','km');
+[posE,velE] = planetEphemeris(juliandate(t_),'Sun','Earth','405','km');
+plot3(posE(:,1),posE(:,2),posE(:,3)); axis equal; hold on;
+[posE,velE] = planetEphemeris(juliandate(t_),'Sun','Earth','430','km');
+plot3(posE(:,1),posE(:,2),posE(:,3)); axis equal;
 
