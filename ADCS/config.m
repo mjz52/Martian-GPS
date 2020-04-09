@@ -1,17 +1,17 @@
-function config()
+function const = config()
 % config(): Initialize global constant variables
 % Dependency: MATLAB Aerospace Toolbox --> planetEphemeris()
 
-global const
 %% Time
 % Assume the flight computer clock begins on 5/3/2020
 % MGPS epoch
 const.INITIAL_TIME = datetime(2020,5,3,9,0,2,'TimeZone','UTCLeapSeconds');
 
-npointspers = 100;
-const.dt = 1/npointspers; % seconds
-
-const.TEND = 4*3600; % end of simulation
+const.dt = 1e-3; % seconds
+const.CPU_SPEED = 10; % 10 seconds
+const.NSTEPS = 4*3600/const.CPU_SPEED; % number of steps 4 hours later
+const.TSTART = 0;
+const.TEND = const.TSTART + const.NSTEPS*const.CPU_SPEED; % end of simulation
 
 %% Universal Constants
 % Astronomical unit [m]

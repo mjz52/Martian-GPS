@@ -1,7 +1,4 @@
-function statedot = state_dot(t,state,p)
-global const
-global actuators
-global sensors
+function statedot = state_dot(t,state,p,const,sensors)
 % state is column vec:
 % [x y z vx vy vz q1 q2 q3 q4 wx wy wz wgx wgy wgz]
 %  1 2 3 4  5  6  7  8  9  10 11 12 13 14  15  16
@@ -76,7 +73,7 @@ Ma = cross(cp-cm,Fa); % Aerodynamic torque
 % 3) Solar Radiation Pressure
 % The New SMAD Eq. 19-5, pg. 571
 % Rotate sun vector from inertial frame to body frame:
-sun_vector_body = rotateframe(q,sensors.sun_sensor.sun_vector); 
+sun_vector_body = rotateframe(q,sensors_get_sun_vector(t)); 
 % sun_vector is vector pointing from origin of B to the location of the sun
 sun_vector_hat = sun_vector_body/norm(sun_vector_body);
 As = dot(abs(sun_vector_hat),[Ax;Ay;Az]); % Incident area from sun
