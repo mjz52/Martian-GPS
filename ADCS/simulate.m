@@ -5,7 +5,8 @@ function [tarr,xarr,yarr,uarr] = simulate(C)
 % x: state
 % y: observed state
 % u: control input
-dt = C.dt; % simulation time step
+
+%dt = C.dt; % simulation time step
 tstart = C.TSTART; % start time
 tend = C.TEND; % end time
 cpu_speed = C.CPU_SPEED;
@@ -17,29 +18,47 @@ sensors = initialize_sensors_struct(C);
 actuators = initialize_actuators_struct();
 computer = initialize_computer_struct();
 
-x = initialize_state(C,'random');
+x = initialize_state(C,'detumbled');
 tarr = zeros(1,nsteps);
 xarr = zeros(length(x),nsteps);
 yarr = zeros(length(x),nsteps);
-uarr = zeros(length(x),nsteps);
+uarr = zeros(3,nsteps);
+
+% PID Controller Setup
+e_sum = zeros(3,1); % integral of error
+e_prev = zeros(3,1);
 
 
 for n=1:nsteps
+    if (n>1)
+        tarr(n) = tarr(n-1) + cpu_speed;
+    end
     xarr(:,n) = x;
     % Read Sensors
     y = observe_state(x,sensors);
     yarr(:,n) = y;
     
     % Command State
-    u = command_state(y,actuators);
+    u_ref = y; u_ref(11:13) = zeros(3,1); % want 0 angular vel
+    e = u_ref(11:13)-y(11:13); % error in angular velocity
+    if (~(sum(abs(e_sum)>=actuators.rwa_maxspeed*ones(3,1))==3 && ...
+            sum(e*e_sum>zeros(3,1))==3))
+        % if statement to turn off integrator IF:
+        % The wheels are at saturation AND
+        % the signs of the error and error integral are the same
+        e_sum = e_sum + e; % integral info
+    end
+    e_rate = (e-e_prev)/cpu_speed; % derivative info
+    e_prev = e;
+    u = command_state(e,e_sum,e_rate);
     uarr(:,n) = u;
     
-    % Apply Physics to Commanded State
-    x = apply_actuation(x,u,actuators);
+    % Convert Commanded State to a Torque
+    T = apply_actuation(x,u,actuators,cpu_speed);
     
     % Update Dynamics
-    f = @(t,x) state_dot(t,x,p,C,sensors);
-    opts = odeset('RelTol',1E-12,'AbsTol',1e-9);
+    f = @(t,x) state_dot(t,x,p,C,actuators,T);
+    opts = odeset('RelTol',1E-4,'AbsTol',1e-4);
     [~, xs] = ode45(f, [0 cpu_speed], x, opts);
     x = xs(end,:)';
 end
@@ -64,25 +83,34 @@ end
 
 function sensors = initialize_sensors_struct(CONST)
 % Sensors Struct
+% Optical Navigation: position, velocity in inertial frame
+% Star Tracker: quaternion from eci
+% Gyro: angular velocity
+% RWA: tachometer -- angular velocity of rwa
 sensors = struct();
-sensors.gyro_bias= CONST.GYRO_BIAS*randn(3,1);
+sensors.opnav_noise = CONST.OPNAV_NOISE*randn(3,1);
+sensors.opnav_bias = CONST.OPNAV_BIAS*randn(3,1);
+
+sensors.startracker_noise = CONST.STARTRACKER_NOISE*randn(4,1);
+sensors.startracker_bias = CONST.STARTRACKER_BIAS*randn(4,1);
+
+sensors.gyro_bias = CONST.GYRO_BIAS*randn(3,1);
 sensors.gyro_noise = CONST.GYRO_NOISE*randn(3,1);
-%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(0);
-%sensors.rwa_rate = sensors_get_rwa_rate(wG0);
+
+sensors.rwa_noise = CONST.RWA_NOISE*randn(3,1);
+sensors.rwa_bias = CONST.RWA_BIAS*randn(3,1);
 end
 
-function actuators = initialize_actuators_struct()
+function actuators = initialize_actuators_struct(C)
 % Actuators Struct:
 actuators = struct();
-% commanded angular velocity vector of rxn wheels (rad/s):
-actuators.rwa_rate_commanded = [0;0;0]; 
-% commanded ramp rate (rad/s^2) of rxn wheels:
-actuators.rwa_ramp_commanded = [0;0;0];
-% commanded torque:
-actuators.rwa_torque_commaned = [0;0;0];
+actuators.rwa_friction = 0.001; % temp
+actuators.rwa_maxspeed = 200; % temp
+actuators.RWA_MAXTORQUE = 100; % temp
+actuators.JWHEEL = 0.01;
 end
 
-function computer = initialize_computer_struct()
+function computer = initialize_computer_struct(C)
 computer = struct();
 end
 

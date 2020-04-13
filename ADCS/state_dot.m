@@ -1,4 +1,4 @@
-function statedot = state_dot(t,state,p,const,sensors)
+function statedot = state_dot(t,state,p,const,actuators,rwa_torque)
 % state is column vec:
 % [x y z vx vy vz q1 q2 q3 q4 wx wy wz wgx wgy wgz]
 %  1 2 3 4  5  6  7  8  9  10 11 12 13 14  15  16
@@ -90,29 +90,13 @@ quat_rate = [w;0];
 qd = quat_cross_mult(0.5*quat_rate,q);
 
 % Reaction Wheels
-wGd = [0;0;0]; % temporary
+wGd = rwa_torque/actuators.JWHEEL;
 
 % Angular Velocity Derivative
 M = Mg + Ma + Ms; % moment on spacecraft
 wd = inv(I_B+I_G)*(M-I_G*wGd-cross(w,((I_B+I_G)*w+I_G*wG))); % with RWA
 
 statedot = [rd;vd;qd;wd;wGd];
-
-%% Read Sensors
-% Update sensors
-% TODO: Add beta_dot (true) = eta_u -- will need to do my own integrator
-beta = sensors.gyro_bias;
-eta_v = sensors.gyro_noise;
-sensors.gyro_w_body = sensors_get_gyro(w,beta,eta_v);
-%sensors.sun_sensor.sun_vector = sensors_get_sun_vector(t); % TODO: SPEEED
-sensors.sun_sensor.sun_vector = sensors_get_sun_vector(t); % TODO: fix sun sensor measurement
-sensors.rwa_rate = sensors_get_rwa_rate(wG);
-
-%% Command Actuators
-% TODO
-w_measured = sensors.gyro_w_body; % measured spacecraft angular velocity
-% [actuators.rwa_rate_commanded, actuators.rwa_ramp_commanded]...
-%     = actuators_command_rwa(w_measured, sensors.rwa_rate, sensors.rwa_ramp);
 end
 
 function [r,v,q,w,wG] = unpack_state(state)

@@ -7,9 +7,10 @@ function const = config()
 % MGPS epoch
 const.INITIAL_TIME = datetime(2020,5,3,9,0,2,'TimeZone','UTCLeapSeconds');
 
-const.dt = 1e-3; % seconds
+%const.dt = 1e-3; % seconds
 const.CPU_SPEED = 10; % 10 seconds
-const.NSTEPS = 4*3600/const.CPU_SPEED; % number of steps 4 hours later
+nhours = 0.5; % number of hours to simulate
+const.NSTEPS = nhours*3600/const.CPU_SPEED; % number of steps nhours later
 const.TSTART = 0;
 const.TEND = const.TSTART + const.NSTEPS*const.CPU_SPEED; % end of simulation
 
@@ -62,12 +63,20 @@ const.quat_mci_perifocal = triad([0; 0; 1],[1; 0; 0],h_mars/norm(h_mars),rp_mars
 % Equatorial Radius of Earth (m)
 const.R_EARTH= 6378137.0;
 
-%% Gyro
+%% Sensors
+const.OPNAV_NOISE = 0.1*pi/180;
+const.OPNAV_BIAS = 0;
+
+const.STARTRACKER_NOISE = 0.1*pi/180;
+const.STARTRACKER_BIAS = 0;
+
 % Standard deviation of the gyro noise (rad/s)
 const.GYRO_NOISE = 0.1*pi/180;
-
 % Standard deviation of the gyro bias (rad/s)
 const.GYRO_BIAS = 1*pi/180;
+
+const.RWA_NOISE = 0.1*pi/180;
+const.RWA_BIAS = 0;
 
 %% Sun
 const.MU_SUN = 1.32712440018E20; % positive scalar
