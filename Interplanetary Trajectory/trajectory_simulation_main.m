@@ -42,8 +42,10 @@ figure(1); hold on; axis equal;
 % Plot Earth orbit
 % t1 = datetime(2020,01,01,00,00,00);
 % t2 = t1+years(5);
-t1E = datetime(2017,09,12,0,0,0);
-t2E = datetime(2018,10,17,0,0,0);
+% t1E = datetime(2017,09,12,0,0,0); %EXAMPLE FROM ONLINE PICTURE
+% t2E = datetime(2018,10,17,0,0,0);
+t1E = datetime(2028,01,01,0,0,0);
+t2E = datetime(2036,01,01,0,0,0);
 t_e = [t1E:t2E]';%linspace(t1,t2,366)';
 [posE,velE] = planetEphemeris(juliandate(t_e),'Sun','Earth','430','km');
 % posE = -posE; velE = -velE; %NEED TO NEGATE VECTOR
@@ -66,8 +68,10 @@ text(posE(i,1),posE(i,2),posE(i,3),"Dec-21",'FontSize',8);
 % Plot Mars orbit
 % t1 = datetime(2020,01,01,00,00,00);
 % t2 = t1+years(7);
-t1M = datetime(2018,4,15,0,0,0);
-t2M = datetime(2020,3,15,0,0,0);
+% t1M = datetime(2018,4,15,0,0,0); %EXAMPLE FROM ONLINE PICTURE
+% t2M = datetime(2020,3,15,0,0,0);
+t1M = datetime(2028,06,01,0,0,0);
+t2M = datetime(2037,06,01,0,0,0);
 t_m = [t1M:t2M]';%linspace(t1,t2,688)';
 [posM,velM] = planetEphemeris(juliandate(t_m),'Sun','Mars','430','km');
 % posM = -posM; velM = -velM; %NEED TO NEGATE VECTOR
@@ -105,11 +109,11 @@ for i = 1:length(t_e)
     end
 end
 
-
+%%
 [T_m, T_e] = meshgrid(t_m,t_e);
 figure;
-T_e = days(t_e - datetime(0,0,0,0,0,0));
-T_m = days(t_m - datetime(0,0,0,0,0,0));
+T_e = days(t_e - datetime(0,1,0,0,0,0));
+T_m = days(t_m - datetime(0,1,0,0,0,0));
 x = repelem((T_e(1):T_e(end))',1,length(t_m));
 y = repelem((T_m(1):T_m(end)),length(t_e),1);
 
@@ -117,13 +121,17 @@ y = repelem((T_m(1):T_m(end)),length(t_e),1);
 [M,c] = contourf(x,y,pork);
 
 % co = [getColor('LightBlue');getColor('Aqua');getColor('Navy');getColor('DarkBlue')];
-datetick('x','mmm-yy'); datetick('y','mmm-yy');
 set(gca,'XLim',[T_e(1) T_e(end)]);
 set(gca,'YLim',[T_m(1) T_m(end)]);
+set(gca,'XTick',linspace(T_e(1),T_e(end),round(years(t_e(end)-t_e(1)))+1));
+set(gca,'YTick',linspace(T_m(1),T_m(end),round(years(t_m(end)-t_m(1)))+1));
+datetick('x','mmm-yy','keeplimits','keepticks'); datetick('y','mmm-yy','keeplimits','keepticks');
+set(gca,'TickDir','out');
 
 xlabel('Departure Date (from Earth)');
 ylabel('Arrival Date (at Mars)');
 title('Porkchop Plot for Earth and Mars with $\Delta$ v contours','interpreter','latex');
+colorbar();
 
 
 
