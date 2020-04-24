@@ -89,6 +89,8 @@ inc = acosd((max_pos(2)/norm(max_pos)));
 j = find(x_e==max(x_e));
 equinox = [x_e(j),y_e(j),z_e(j)];
 
+dv_max = 15.5;
+
 pork = zeros(length(t_e),length(t_m));
 del_t = days(t1M-t1E);
 for i = 1:length(t_e)
@@ -102,14 +104,14 @@ for i = 1:length(t_e)
             dv1 = norm(sv1(4:6) - vi');
             dv2 = norm(vf' - sv2(4:6));
             dv = dv1 + dv2;
-            pork(i,j) = (dv<15.5)*dv;
+            pork(i,j) = (dv<dv_max)*dv;
         catch
             pork(i,j) = 0;
         end
     end
 end
 
-%%
+%% Plotting porkchop
 [T_m, T_e] = meshgrid(t_m,t_e);
 figure;
 T_e = days(t_e - datetime(0,1,0,0,0,0));
@@ -123,9 +125,9 @@ y = repelem((T_m(1):T_m(end)),length(t_e),1);
 % co = [getColor('LightBlue');getColor('Aqua');getColor('Navy');getColor('DarkBlue')];
 set(gca,'XLim',[T_e(1) T_e(end)]);
 set(gca,'YLim',[T_m(1) T_m(end)]);
-set(gca,'XTick',linspace(T_e(1),T_e(end),round(years(t_e(end)-t_e(1)))+1));
-set(gca,'YTick',linspace(T_m(1),T_m(end),round(years(t_m(end)-t_m(1)))+1));
-datetick('x','mmm-yy','keeplimits','keepticks'); datetick('y','mmm-yy','keeplimits','keepticks');
+set(gca,'XTick',ceil(linspace(T_e(1),T_e(end),round(years(t_e(end)-t_e(1)))+1)));
+set(gca,'YTick',(linspace(T_m(1),T_m(end),round(years(t_m(end)-t_m(1)))+1)));
+datetick('x','dd-mmm-yy','keeplimits','keepticks'); datetick('y','dd-mmm-yy','keeplimits','keepticks');
 set(gca,'TickDir','out');
 
 xlabel('Departure Date (from Earth)');
@@ -133,6 +135,51 @@ ylabel('Arrival Date (at Mars)');
 title('Porkchop Plot for Earth and Mars with $\Delta$ v contours','interpreter','latex');
 colorbar();
 
+%% Find local minimima
+val = []; r = []; c = [];
+tol = days(20);
+% Get regions of time when there are valid departure and arrival dates
+delv_acceptable = 7.5;%round(min(min(pork(pork~=0))),1); %set minimum to lowest attainable del_v
+while ~(length(val) > 10 && length(find(diff(sort(t_e(r)))>tol)) >= 6)
+    delv_acceptable = delv_acceptable + 0.1
+%     TF = islocalmin(pork,1) & islocalmin(pork,2) & pork < delv_acceptable & pork~=0;
+    TF = islocalmin(pork,1) & islocalmin(pork,2) & pork < delv_acceptable & pork~=0;
+    [r,c,val] = find(TF);
+end
+
+[t_e_sort, i_sort] = sort(t_e(r));
+sections = [0; find(diff(t_e_sort)>tol); length(t_e_sort)];
+dep_dates = t_e(r); dep_dates = dep_dates(i_sort);
+arr_dates = t_m(c); arr_dates = arr_dates(i_sort);
+del_v = zeros(length(r),1);
+for i = 1:length(r)
+	del_v(i) = pork(r(i),c(i));
+end
+del_v = del_v(i_sort);
+% Get best times from each section
+best_dep_dates = [];
+best_arr_dates = [];
+best_del_v = [];
+for j = 1:length(sections)-1
+    del_v_sect = del_v(sections(j)+1:sections(j+1));
+    [~, ind_sort] = sortrows(del_v_sect);
+    k = ind_sort(1:min(3,length(ind_sort)));
+    k = k + sections(j);
+    best_dep_dates = [best_dep_dates; dep_dates(k)];
+    best_arr_dates = [best_arr_dates; arr_dates(k)];
+    best_del_v = [best_del_v; del_v(k)];
+end
+
+best_dates = [best_dep_dates, best_arr_dates]
+best_del_v
+
+%% Plot each date
+hold on;
+for i = 1:length(best_dates)
+    td = find(t_e==best_dep_dates(i));
+    ta = find(t_m==best_arr_dates(i));
+    plot(T_e(td),T_m(ta),'*','color','black')
+end
 
 
 
