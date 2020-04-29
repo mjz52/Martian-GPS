@@ -78,14 +78,17 @@ view(50,10); %View plot from angle specified by AZ, EL
 
 % Test Ballard rosette
 const = Constellation(p);
-N1 = 4; % Number of planes
-N2 = 5; % Number of satellites per plane
+t_walk = 12; %Total num sats
+p_walk = 12; %Number of equally space planes
+f_walk = 2; %Harmonic factor
+N = t_walk/p_walk; % Number of satellites per plane
 alpha = 20*pi/180;
-for i = 1:N1
-    Omega = (i-1)/N1*360;
-    for j = 1:N2
-        omega = (j-1)/N2*360;
-        k0 = [R_m+22000,0,Omega*pi/180,45*pi/180,omega*pi/180,0,mu]; %a,e,Omega,I,omega,nu
+for i = 1:p_walk
+    Omega = (i-1)/p_walk*360;
+    nu = f_walk/t_walk*(i-1) * 360;
+    for j = 1:N
+        omega = (j-1)/N*360;
+        k0 = [R_m+25000,0.01,Omega*pi/180,55*pi/180,omega*pi/180,nu,mu]; %a,e,Omega,I,omega,nu
         sat = Satellite(k0,p,alpha);
         const = const.add_sat(sat);
     end

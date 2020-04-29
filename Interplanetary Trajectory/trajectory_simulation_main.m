@@ -3,6 +3,7 @@
 
 close all; clear; %clc;
 
+%%
 daySec = 3600*24; %seconds per day
 J2000 = datetime(2000,01,01,12,0,0);
 
@@ -132,7 +133,7 @@ set(gca,'TickDir','out');
 
 xlabel('Departure Date (from Earth)');
 ylabel('Arrival Date (at Mars)');
-title('Porkchop Plot for Earth and Mars with $\Delta$ v contours','interpreter','latex');
+title('Porkchop Plot for Earth and Mars with \Deltav contours', 'interpreter', 'tex', 'fontname', 'Ti89pc')
 colorbar();
 
 %% Find local minimima

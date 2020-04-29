@@ -170,15 +170,16 @@ classdef Satellite
             plot(obj.t_,obj.om,'color','green');
             plot(obj.t_,obj.Om_theor,'color',getColor('DarkRed'));
             plot(obj.t_,obj.om_theor,'color',getColor('DarkGreen'));
-            legend("$\Omega$","$I$","$\omega$","$\Omega_{theor}$","$\omega_{theor}$",'interpreter','latex','location','eastoutside');
-            xlabel('t (days)','interpreter','latex'); ylabel('Orbital element (rad)','interpreter','latex');
+            legend("\Omega","I","\omega","\Omega_{theor}","\omega_{theor}",'interpreter','tex','location','E');
+            ylabel('Orbital element (rad)','interpreter','tex');
             ylim([0 2*pi]);
             subplot(3,1,2); hold on;
             plot(obj.t_,obj.a);
-            legend("a, semi-major axis",'location','eastoutside');
+            ylabel("a, semi-major axis (km)");
             subplot(3,1,3); hold on;
             plot(obj.t_,obj.e);
-            legend("e, eccentricity",'location','eastoutside');
+            ylabel("e, eccentricity");
+            xlabel('t (days)','interpreter','tex'); 
             ylim([0 1])
         end
         
