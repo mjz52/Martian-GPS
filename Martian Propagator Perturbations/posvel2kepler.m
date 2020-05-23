@@ -42,12 +42,17 @@ e =  sqrt(abs(1 - h.^2./(mu*a))); %eccentricity
 e1_ = [ones(size(r,1),1), zeros(size(r,1),2)];
 e3_ = [zeros(size(r,1),2), ones(size(r,1),1)];
 % e3_ = [repelem(e3_(1),size(r,1))',repelem(e3_(2),size(r,1))',repelem(e3_(3),size(r,1))'];
-e_ = cross(v, h.*h_)/mu - r./sqrt(sum(r.^2,2));  e_ = e_./sqrt(sum(e_.^2,2));% eccentricity vector
+
 n_ = cross(e3_, h_); %n_ = n_/norm(n_);% Line of ascending nodes
 % n_ = [-h_(2), h_(1), 0];
 er_ = r./sqrt(sum(r.^2,2));
 
-
+if(max(e)>1e-4) %non-circular
+    e_ = cross(v, h.*h_)/mu - r./sqrt(sum(r.^2,2));  e_ = e_./sqrt(sum(e_.^2,2));% eccentricity vector
+else %circular
+    n_ = repelem(n_(1,:),length(n_),1);
+    e_ = repelem(er_(1,:),length(er_),1);
+end
 % nu = acos(1./e.*(a.*(1-e.^2)./sqrt(sum(r.^2,2)) - 1));
 nu = real(acos(dot(e_', er_')'));
 neg_nu = find(dot(v', er_')'<0);

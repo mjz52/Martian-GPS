@@ -69,7 +69,7 @@ classdef Satellite
             obj.I = k0(4); obj.om = k0(5); obj.nu = k0(6);
             obj.t_ = [0];
             obj.name = "a1";
-            obj.color = "Blue";
+            obj.color = "Orange";
             obj.alpha = alpha;
             
             obj.lat_c = [];
@@ -131,7 +131,7 @@ classdef Satellite
         % Plot entire orbit. fig is the figure handle
         function plot_full(obj,fig)
             figure(fig);
-            plot3(obj.x,obj.y,obj.z,'LineWidth',1,'color',getColor(obj.color));
+            plot3(obj.x,obj.y,obj.z,'LineWidth',0.5,'color',getColor(obj.color));
 %             leg = legend(gca);
 %             leg = leg.String;
 %             leg(end) = {"Satellite:" + obj.name};
@@ -166,20 +166,22 @@ classdef Satellite
             figure(fig);
             subplot(3,1,1); hold on;
             plot(obj.t_,obj.Om,'color','red');
+            plot(obj.t_,obj.Om_theor,'color',getColor('DarkRed'));
             plot(obj.t_,obj.I,'color','blue');
             plot(obj.t_,obj.om,'color','green');
-            plot(obj.t_,obj.Om_theor,'color',getColor('DarkRed'));
             plot(obj.t_,obj.om_theor,'color',getColor('DarkGreen'));
-            legend("\Omega","I","\omega","\Omega_{theor}","\omega_{theor}",'interpreter','tex','location','E');
+            legend("\Omega","\Omega_{theor}","I","\omega","\omega_{theor}",'interpreter','tex','location','E');
+            xlabel('t (days)'); 
             ylabel('Orbital element (rad)','interpreter','tex');
             ylim([0 2*pi]);
             subplot(3,1,2); hold on;
-            plot(obj.t_,obj.a);
+            plot(obj.t_,obj.a,'color',getColor('Orange'));
             ylabel("a, semi-major axis (km)");
+            ylim([0 max(obj.a*1.25)])
             subplot(3,1,3); hold on;
-            plot(obj.t_,obj.e);
+            plot(obj.t_,obj.e,'color',getColor('Purple'));
             ylabel("e, eccentricity");
-            xlabel('t (days)','interpreter','tex'); 
+            xlabel('t (days)'); 
             ylim([0 1])
         end
         

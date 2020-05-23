@@ -17,7 +17,7 @@ n = 2*pi/T;
 Om = zeros(length(t),1); om = zeros(length(t),1);
 Om(1) = Om0; om(1) = om0;
 Om_dot = -3*n*R_m^2*J2/(2*a0^2*(1-e0^2)^2)*cos(I0);
-om_dot = 3/2*J2*n*(R_m/(a0*(1-e0^2)))^2*(2-5/2*sin(I0)^2);
+om_dot = (3/2*J2*n*(R_m/(a0*(1-e0^2)))^2*(2-5/2*sin(I0)^2));%*(e0~=0);
 for i = 2:length(t)
     Om(i) = Om(i-1) + Om_dot*(t(i)-t(i-1));
     om(i) = om(i-1) + om_dot*(t(i)-t(i-1));

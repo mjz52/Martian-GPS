@@ -1,7 +1,8 @@
 % Michael Zakoworotny
 % Animation of Mars orbit
 
-clear all; clc; close all;
+close all; clear all;
+% clear all; clc; close all;
 warning('off');
 % Constants
 secPerDay = 3600*24; % s/day
@@ -25,8 +26,8 @@ J2 = -sqrt(factorial(l-m)*(2*l+1)*(2-1)/factorial(l+m))*C20; p.J2 = J2;
 % p.wm = 7.292115e-5;       %rad/s rotation rate of the Earth
 % p.bm = p.am*sqrt(1-p.em2);
 
-
-fig1 = figure(1); hold on; axis equal;
+% colordef black;
+fig1 = figure(1); hold on; axis equal; grid on;
 
 mars_oblate = oblateSpheroid;
 mars_oblate.SemimajorAxis = p.am;
@@ -39,7 +40,7 @@ theta = linspace(-pi,pi,100);
 [Theta, Lat] = meshgrid(theta, lat);
 [x_m,y_m,z_m] = geod2pos(Lat, Theta, 0);
 % Plot Mars
-mars = imread('8k_earth_daymap.jpg'); %'8k_earth_daymap.jpg' for earth, '8k_mars.jpg' for mars
+mars = imread('8k_mars.jpg'); %'8k_earth_daymap.jpg' for earth, '8k_mars.jpg' for mars
 props.FaceColor= 'texture';
 props.EdgeColor = 'none';
 props.Cdata = mars;
@@ -78,8 +79,8 @@ view(50,10); %View plot from angle specified by AZ, EL
 
 % Test Ballard rosette
 const = Constellation(p);
-t_walk = 12; %Total num sats
-p_walk = 12; %Number of equally space planes
+t_walk = 1;%12; %Total num sats
+p_walk = 1;%12; %Number of equally space planes
 f_walk = 2; %Harmonic factor
 N = t_walk/p_walk; % Number of satellites per plane
 alpha = 20*pi/180;
@@ -88,7 +89,7 @@ for i = 1:p_walk
     nu = f_walk/t_walk*(i-1) * 360;
     for j = 1:N
         omega = (j-1)/N*360;
-        k0 = [R_m+25000,0.01,Omega*pi/180,55*pi/180,omega*pi/180,nu,mu]; %a,e,Omega,I,omega,nu
+        k0 = [R_m+21247.85,0,Omega*pi/180,55*pi/180,omega*pi/180,nu,mu]; %a,e,Omega,I,omega,nu
         sat = Satellite(k0,p,alpha);
         const = const.add_sat(sat);
     end
@@ -96,7 +97,7 @@ end
 
 
 const = const.plot_init_pos(fig1);
-const = const.plot_orbit_orbit(fig1,1); %Number of orbits
+const = const.plot_orbit_orbit(fig1,3000); %Number of orbits
 % const = const.plot_orbit_time(fig1,1); %Duration
 
 % Animate
@@ -124,12 +125,13 @@ const = const.plot_orbit_orbit(fig1,1); %Number of orbits
 
 drawAxes();
 
-% Plot Orbital Elements over time
-fig2 = figure(2);
+%% Plot Orbital Elements over time
+% colordef white;
+fig2 = figure(2); grid off;
 const = const.plot_elems(fig2);
 
 
-% Get ground track
+%% Get ground track
 fig3 = figure(3); hold on; axis equal;
 ax = [[-size(mars,2)/2, size(mars,2)/2]; [-size(mars,1)/2, size(mars,1)/2]]; 
 image(-size(mars,2)/2+0.5, -size(mars,1)/2+0.5, flipud(mars));
@@ -138,7 +140,7 @@ const = const.plot_trace(fig3,ax);
 
 
 
-% Model Coverage
+%% Model Coverage
 const = const.plot_coverage(fig3,ax,fig1);
 
 const = const.get_coverage();
